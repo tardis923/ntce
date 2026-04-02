@@ -71,7 +71,7 @@
             background-color: white;
         }
         
-        /* 修复：统一按钮样式 */
+        /* 统一按钮样式 */
         .btn-uniform {
             width: 100px;           /* 统一宽度 */
             height: 36px;           /* 统一高度 */
@@ -124,6 +124,15 @@
             background-color: #8e44ad;
         }
         
+        .btn-quickfill {
+            background-color: #1abc9c;
+            color: white;
+        }
+        
+        .btn-quickfill:hover {
+            background-color: #16a085;
+        }
+        
         /* 按钮容器样式 */
         .button-container {
             display: flex;
@@ -161,7 +170,7 @@
         
         /* 左侧学科面板 */
         .subject-panel {
-            width: 280px;
+            width: 230px;
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -256,8 +265,7 @@
         
         .subject-item {
             display: flex;
-            justify-content: space-between;
-            padding: 8px 10px;
+            padding: 8px 0;
             margin-bottom: 8px;
             border-radius: 4px;
             background-color: #f8f9fa;
@@ -463,7 +471,7 @@
         
         /* 右侧学科库 */
         .subject-library {
-            width: 200px; /* 缩小宽度 */
+            width: 160px; /* 缩小宽度 */
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -633,11 +641,19 @@
             margin-bottom: 10px;
             background-color: white;
         }
+        
+        /* 快速填充说明 */
+        .quick-fill-hint {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 5px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>考场编排系统</h1>
+        <h1>学科编排系统</h1>
         <div class="control-panel">
             <!-- 最大考场号 -->
             <div class="control-group">
@@ -663,6 +679,14 @@
                         <input type="file" id="restore-file" accept=".json">
                     </div>
                     <button id="export-data" class="btn-uniform btn-export">导出Excel</button>
+                </div>
+            </div>
+            
+            <!-- 快速填充按钮组 -->
+            <div class="control-group">
+                <div class="button-group-label">快速编排</div>
+                <div class="button-container">
+                    <button id="quick-fill" class="btn-uniform btn-quickfill">快速填充</button>
                 </div>
             </div>
         </div>
@@ -692,7 +716,7 @@
             
             <!-- 左侧筛选器 -->
             <div class="filter-section">
-                <div class="panel-title" style="font-size: 14px; margin-bottom: 8px;">筛选学科（左侧）</div>
+                <div class="panel-title" style="font-size: 14px; margin-bottom: 8px;">筛选学科</div>
                 <select class="filter-dropdown" id="left-filter-select">
                     <option value="all">全部学科</option>
                     <option value="preschool">幼教学科</option>
@@ -735,6 +759,7 @@
                 <div class="panel-title">考场编排表</div>
                 <div id="arrangement-stats" style="font-size: 13px; color: #7f8c8d;">共 0 个考场</div>
             </div>
+            <div class="quick-fill-hint">快速填充规则：每个考场只填充一个学科，上午小计不超过12人，下午小计不超过13人，只处理人数≥50的学科</div>
             <div class="table-container">
                 <table id="exam-table">
                     <thead>
@@ -812,11 +837,11 @@
         
         <!-- 右侧学科库 -->
         <div class="subject-library">
-            <div class="panel-title">学科库</div>
+            <div class="panel-title">学科列表</div>
             
             <!-- 右侧筛选器 - 改为下拉菜单 -->
             <div class="filter-section">
-                <div class="panel-title" style="font-size: 14px; margin-bottom: 8px;">筛选学科（右侧）</div>
+            
                 <select class="filter-dropdown" id="right-filter-select">
                     <option value="all">全部学科</option>
                     <option value="preschool">幼教学科</option>
@@ -878,7 +903,7 @@
             setTimeout(initDragAndDrop, 100);
         });
         
-        // 渲染学科列表
+        // 渲染学科列表 - 已整合优化版本
         function renderSubjectList() {
             const $list = $('#subject-list');
             $list.empty();
@@ -911,8 +936,6 @@
             filteredSubjects.forEach(subject => {
                 const arrangedPercent = subject.count > 0 ? 
                     Math.round((subject.arranged / subject.count) * 100) : 0;
-                const statusText = subject.count > 0 ? 
-                    `已编排 ${subject.arranged}/${subject.count} (${arrangedPercent}%)` : '无数据';
                 
                 // 确定状态和样式
                 let statusClass = '';
@@ -938,12 +961,73 @@
                     statusClass = 'status-unarranged';
                 }
                 
+                // 优化版本：左中右三列布局
                 $list.append(`
                     <div class="${itemClass}" data-name="${subject.name}" data-category="${subject.category}">
-                        <span class="subject-name">${subject.name}</span>
-                        <div>
-                            <span class="subject-count">${subject.arranged}/${subject.count}</span>
-                            <span class="${statusClass}">${statusText}</span>
+                        <div class="subject-row" style="
+                            display: flex; 
+                            justify-content: space-between; 
+                            align-items: center; 
+                            width: 100%; 
+                            padding: 6px 0;
+                        ">
+                            <!-- 左：学科名称 -->
+                            <div class="subject-name-col" style="flex: 2; min-width: 0;">
+                                <span class="subject-name" style="
+                                    font-size: 13px; 
+                                    font-weight: bold; 
+                                    color: #2c3e50;
+                                    display: block;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+                                ">
+                                    ${subject.name}
+                                </span>
+                            </div>
+                            
+                            <!-- 中：编排数据 -->
+                            <div class="subject-count-col" style="
+                                flex: 1.5; 
+                                text-align: center; 
+                                padding: 0 5px;
+                            ">
+                                <span class="subject-count" style="
+                                    font-size: 12px; 
+                                    font-weight: bold; 
+                                    color: #3498db;
+                                    background-color: #f0f8ff;
+                                    padding: 2px 6px;
+                                    border-radius: 3px;
+                                    display: inline-block;
+                                    min-width: 45px;
+                                ">
+                                    ${subject.arranged}/${subject.count}
+                                </span>
+                            </div>
+                            
+                            <!-- 右：百分比 -->
+                            <div class="subject-percent-col" style="
+                                flex: 1; 
+                                text-align: right;
+                            ">
+                                <span class="${statusClass}" style="
+                                    font-size: 12px; 
+                                    font-weight: bold; 
+                                    color: ${statusClass === 'status-arranged' ? '#27ae60' : 
+                                            statusClass === 'status-warning' ? '#f39c12' : 
+                                            statusClass === 'status-error' ? '#e74c3c' : '#7f8c8d'};
+                                    background-color: ${statusClass === 'status-arranged' ? '#f0fff4' : 
+                                                     statusClass === 'status-warning' ? '#fffbf0' : 
+                                                     statusClass === 'status-error' ? '#fff0f0' : '#f8f9fa'};
+                                    padding: 2px 6px;
+                                    border-radius: 3px;
+                                    display: inline-block;
+                                    min-width: 35px;
+                                ">
+                                    ${arrangedPercent}%
+                                </span>
+                            </div>
                         </div>
                     </div>
                 `);
@@ -1491,6 +1575,22 @@
                 exportToExcel();
             });
             
+            // 快速填充按钮
+            $('#quick-fill').click(function() {
+                if (!isDataLoaded) {
+                    showError('请先生成考场表格');
+                    return;
+                }
+                
+                if (subjects.length === 0) {
+                    showError('请先导入学科数据');
+                    return;
+                }
+                
+                // 执行快速填充
+                quickFillSubjects();
+            });
+            
             // 文件选择变化事件
             $('#restore-file').change(function() {
                 const fileInput = $('#restore-file')[0];
@@ -1550,6 +1650,276 @@
                 if (value < 1) $(this).val(1);
                 if (value > 200) $(this).val(200);
             });
+        }
+        
+        // 快速填充功能 - 已优化版本
+        function quickFillSubjects() {
+            // 只获取人数≥50的学科
+            const highCountSubjects = subjects.filter(subject => {
+                return subject.count >= 50 && subject.arranged < subject.count;
+            });
+            
+            if (highCountSubjects.length === 0) {
+                showError('没有找到需要快速填充的学科（要求：人数≥50人且未编排完）');
+                return;
+            }
+            
+            // 按人数从多到少排序
+            const sortedSubjects = [...highCountSubjects].sort((a, b) => b.count - a.count);
+            
+            // 按学科名称分组，支持跨学段组合
+            const subjectsByName = {};
+            sortedSubjects.forEach(subject => {
+                if (!subjectsByName[subject.name]) {
+                    subjectsByName[subject.name] = [];
+                }
+                subjectsByName[subject.name].push(subject);
+            });
+            
+            let filledRooms = 0; // 成功填充的考场数
+            let currentSubjectNameIndex = 0;
+            const subjectNames = Object.keys(subjectsByName);
+            
+            // 遍历所有考场
+            for (let roomIndex = 0; roomIndex < examRooms.length; roomIndex++) {
+                if (currentSubjectNameIndex >= subjectNames.length) {
+                    break; // 所有学科都已尝试填充
+                }
+                
+                const room = examRooms[roomIndex];
+                const currentSubjectName = subjectNames[currentSubjectNameIndex];
+                const sameNameSubjects = subjectsByName[currentSubjectName];
+                
+                // 检查这个考场是否已经是空的（四个半天都没有学科）
+                let isEmptyRoom = true;
+                ['day1am', 'day1pm', 'day2am', 'day2pm'].forEach(period => {
+                    room[period].forEach(group => {
+                        if (group.subject && group.subject.trim() !== '') {
+                            isEmptyRoom = false;
+                        }
+                    });
+                });
+        
+                if (!isEmptyRoom) {
+                    continue; // 这个考场已经有学科了，跳过
+                }
+                
+                // 计算这个学科名称下所有学段的剩余总人数
+                let remainingCount = 0;
+                sameNameSubjects.forEach(subject => {
+                    remainingCount += (subject.count - subject.arranged);
+                });
+                
+                if (remainingCount <= 0) {
+                    // 这个学科名称下所有学段都已编排完，切换到下一个学科
+                    currentSubjectNameIndex++;
+                    if (currentSubjectNameIndex >= subjectNames.length) {
+                        break;
+                    }
+                    continue;
+                }
+                
+                // 计算这个考场最多能编排多少人
+                const maxPerRoom = 12 + 13 + 12 + 13; // 50人
+                
+                // 计算这个考场实际能编排多少人
+                const fillAmount = Math.min(remainingCount, maxPerRoom);
+                
+                // 分配上午和下午的人数
+                let remainingToFill = fillAmount;
+                const morningCount = Math.min(remainingToFill, 12);
+                remainingToFill -= morningCount;
+                
+                const afternoonCount = Math.min(remainingToFill, 13);
+                remainingToFill -= afternoonCount;
+                
+                const morningCount2 = Math.min(remainingToFill, 12);
+                remainingToFill -= morningCount2;
+                
+                const afternoonCount2 = Math.min(remainingToFill, 13);
+                remainingToFill -= afternoonCount2;
+                
+                // 分配实际人数到各个时间段
+                const timeSlots = [
+                    { period: 'day1am', count: morningCount },
+                    { period: 'day1pm', count: afternoonCount },
+                    { period: 'day2am', count: morningCount2 },
+                    { period: 'day2pm', count: afternoonCount2 }
+                ];
+                
+                // 记录每个时间段分配的学科和人数
+                const assignments = [];
+                
+                // 为每个时间段分配人数
+                timeSlots.forEach(timeSlot => {
+                    if (timeSlot.count <= 0) return;
+                    
+                    // 从相同名称的学科中分配人数
+                    let slotRemaining = timeSlot.count;
+                    const slotSubjects = [];
+                    
+                    // 遍历所有相同名称的学科，按学段顺序分配
+                    const categoriesOrder = ['high', 'junior', 'primary', 'preschool', 'vocational'];
+                    
+                    for (const category of categoriesOrder) {
+                        if (slotRemaining <= 0) break;
+                        
+                        const subjectInCategory = sameNameSubjects.find(s => 
+                            s.category === category && s.arranged < s.count
+                        );
+                        
+                        if (subjectInCategory) {
+                            const available = subjectInCategory.count - subjectInCategory.arranged;
+                            const take = Math.min(slotRemaining, available);
+                            
+                            if (take > 0) {
+                                slotSubjects.push({
+                                    subject: subjectInCategory,
+                                    count: take
+                                });
+                                
+                                // 更新学科编排计数
+                                subjectInCategory.arranged += take;
+                                slotRemaining -= take;
+                            }
+                        }
+                    }
+                    
+                    assignments.push({
+                        period: timeSlot.period,
+                        count: timeSlot.count,
+                        subjects: slotSubjects
+                    });
+                });
+                
+                // 填充考场
+                assignments.forEach(assignment => {
+                    if (assignment.count <= 0) return;
+                    
+                    const periodGroups = room[assignment.period];
+                    
+                    // 检查这个时间段是否有多个学段的学科
+                    if (assignment.subjects.length === 1) {
+                        // 只有一个学段，填到第1组
+                        const subject = assignment.subjects[0].subject;
+                        const count = assignment.subjects[0].count;
+                        
+                        periodGroups[0].subject = subject.name;
+                        periodGroups[0].count = count;
+                        
+                        // 更新DOM
+                        const $subjectCell = $(`.subject-drop[data-room="${roomIndex + 1}"][data-period="${assignment.period}"][data-group="0"]`);
+                        $subjectCell.text(subject.name).addClass('subject-dropped');
+                        
+                        if ($subjectCell.find('.remove-subject').length === 0) {
+                            $subjectCell.append('<div class="remove-subject">×</div>');
+                        }
+                        
+                        const $countInput = $(`.count-input[data-room="${roomIndex + 1}"][data-period="${assignment.period}"][data-group="0"]`);
+                        $countInput.val(count);
+                    } else {
+                        // 有多个学段，需要合并显示
+                        let displayName = assignment.subjects[0].subject.name;
+                        let totalCount = 0;
+                        
+                        // 如果有多个学段，显示为"学科名(学段1,学段2)"
+                        if (assignment.subjects.length > 1) {
+                            const categories = assignment.subjects.map(s => {
+                                const categoryMap = {
+                                    'preschool': '幼',
+                                    'primary': '小',
+                                    'junior': '初',
+                                    'high': '高',
+                                    'vocational': '中职'
+                                };
+                                return categoryMap[s.subject.category] || s.subject.category;
+                            }).join(',');
+                            
+                            displayName = `${assignment.subjects[0].subject.name}(${categories})`;
+                        }
+                        
+                        // 计算总人数
+                        assignment.subjects.forEach(item => {
+                            totalCount += item.count;
+                        });
+                        
+                        // 填到第1组
+                        periodGroups[0].subject = displayName;
+                        periodGroups[0].count = totalCount;
+                        
+                        // 更新DOM
+                        const $subjectCell = $(`.subject-drop[data-room="${roomIndex + 1}"][data-period="${assignment.period}"][data-group="0"]`);
+                        $subjectCell.text(displayName).addClass('subject-dropped');
+                        
+                        if ($subjectCell.find('.remove-subject').length === 0) {
+                            $subjectCell.append('<div class="remove-subject">×</div>');
+                        }
+                        
+                        const $countInput = $(`.count-input[data-room="${roomIndex + 1}"][data-period="${assignment.period}"][data-group="0"]`);
+                        $countInput.val(totalCount);
+                    }
+                    
+                    // 其他3个组清空
+                    for (let groupIndex = 1; groupIndex < 4; groupIndex++) {
+                        periodGroups[groupIndex].subject = '';
+                        periodGroups[groupIndex].count = 0;
+                        
+                        // 更新DOM
+                        const $otherSubjectCell = $(`.subject-drop[data-room="${roomIndex + 1}"][data-period="${assignment.period}"][data-group="${groupIndex}"]`);
+                        $otherSubjectCell.text('').removeClass('subject-dropped');
+                        $otherSubjectCell.find('.remove-subject').remove();
+                        
+                        const $otherCountInput = $(`.count-input[data-room="${roomIndex + 1}"][data-period="${assignment.period}"][data-group="${groupIndex}"]`);
+                        $otherCountInput.val('');
+                    }
+                });
+                
+                filledRooms++;
+                
+                // 更新行总计
+                updateRowTotal($(`tr[data-room-id="${roomIndex + 1}"]`));
+                
+                // 检查这个学科名称下是否所有学段都已编排完
+                let allArranged = true;
+                sameNameSubjects.forEach(subject => {
+                    if (subject.arranged < subject.count) {
+                        allArranged = false;
+                    }
+                });
+                
+                if (allArranged) {
+                    currentSubjectNameIndex++;
+                }
+            }
+            
+            // 重新计算所有学科的编排人数
+            recalculateAllSubjects();
+            
+            // 重新渲染学科列表
+            renderSubjectList();
+            
+            // 显示成功消息
+            if (filledRooms > 0) {
+                const filledSubjectsCount = Math.min(currentSubjectNameIndex + 1, subjectNames.length);
+                
+                // 统计人数小于50的学科数量
+                const smallSubjects = subjects.filter(subject => subject.count < 50 && subject.arranged < subject.count);
+                
+                if (smallSubjects.length > 0) {
+                    showSuccess(`快速填充完成！共填充了 ${filledRooms} 个考场，编排了 ${filledSubjectsCount} 个学科（只处理人数≥50的学科）\n还有 ${smallSubjects.length} 个学科人数小于50，请手动编排`);
+                } else {
+                    showSuccess(`快速填充完成！共填充了 ${filledRooms} 个考场，编排了 ${filledSubjectsCount} 个学科（只处理人数≥50的学科）`);
+                }
+            } else {
+                // 检查是否有小于50人的学科
+                const smallSubjects = subjects.filter(subject => subject.count < 50 && subject.arranged < subject.count);
+                
+                if (smallSubjects.length > 0) {
+                    showError('没有找到可以填充的学科（只处理人数≥50的学科）\n有 ' + smallSubjects.length + ' 个学科人数小于50，请手动编排');
+                } else {
+                    showError('没有找到可以填充的空考场（需要完全空白的考场）');
+                }
+            }
         }
         
         // 恢复数据
@@ -1705,7 +2075,7 @@
                 // 添加表头
                 const headers = [
                     ['考场编排表'],
-                    ['考场号', 
+                    ['拖动', '考场号', 
                      '第一天上午', '', '', '', '', '', '', '', '小计',
                      '第一天下午', '', '', '', '', '', '', '', '小计',
                      '第二天上午', '', '', '', '', '', '', '', '小计',
@@ -1731,6 +2101,7 @@
                 // 添加数据行
                 examRooms.forEach((room, index) => {
                     const row = [];
+                    row.push(''); // 拖动列
                     row.push(index + 1); // 考场号
                     
                     // 第一天上午

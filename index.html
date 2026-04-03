@@ -642,12 +642,35 @@
             background-color: white;
         }
         
-        /* 快速填充说明 */
+        /* 快速填充说明和按钮容器 */
+        .quick-fill-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
         .quick-fill-hint {
-            font-size: 14px;
+            font-size: 12px;
             color: #7f8c8d;
-            margin-top: 5px;
-            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .center-quick-fill-btn {
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+        
+        .center-quick-fill-btn:hover {
+            background-color: #16a085;
         }
     </style>
 </head>
@@ -657,7 +680,7 @@
         <div class="control-panel">
             <!-- 最大考场号 -->
             <div class="control-group">
-                <label for="max-room">最大考场号</label>
+                <label for="max-room">考场数</label>
                 <input type="number" id="max-room" value="60" min="1" max="200">
             </div>
             
@@ -682,13 +705,7 @@
                 </div>
             </div>
             
-            <!-- 快速填充按钮组 -->
-            <div class="control-group">
-                <div class="button-group-label">快速编排</div>
-                <div class="button-container">
-                    <button id="quick-fill" class="btn-uniform btn-quickfill">快速填充</button>
-                </div>
-            </div>
+            <!-- 快速填充按钮组（从顶部移除） -->
         </div>
     </div>
     
@@ -759,7 +776,13 @@
                 <div class="panel-title">考场编排表</div>
                 <div id="arrangement-stats" style="font-size: 13px; color: #7f8c8d;">共 0 个考场</div>
             </div>
-            <div class="quick-fill-hint">快速填充规则：每个考场只填充一个学科，上午小计不超过12人，下午小计不超过13人，只处理人数≥50的学科</div>
+            
+            <!-- 快速填充规则和按钮容器 -->
+            <div class="quick-fill-container">
+                <button id="center-quick-fill" class="center-quick-fill-btn">快速填充</button><div class="quick-fill-hint">快速填充规则：每个考场只填充一个学科，上午小计不超过12人，下午小计不超过13人，只处理人数≥50的学科</div>
+                
+            </div>
+            
             <div class="table-container">
                 <table id="exam-table">
                     <thead>
@@ -1575,8 +1598,8 @@
                 exportToExcel();
             });
             
-            // 快速填充按钮
-            $('#quick-fill').click(function() {
+            // 快速填充按钮（中央位置）
+            $('#center-quick-fill').click(function() {
                 if (!isDataLoaded) {
                     showError('请先生成考场表格');
                     return;

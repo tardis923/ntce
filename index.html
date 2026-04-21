@@ -3,1135 +3,1586 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>考官编排管理系统</title>
+    <title>学科编排系统</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
         }
         
         body {
             background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
             padding: 20px;
+            color: #333;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
+            overflow: hidden;
         }
         
-        header {
-            text-align: center;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 2px solid #3498db;
+            height: 80px;
             flex-shrink: 0;
         }
         
-        h1 {
+        .header h1 {
             color: #2c3e50;
             font-size: 24px;
-            margin-bottom: 8px;
         }
         
-        .description {
+        .control-panel {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .control-group label {
+            font-size: 12px;
             color: #7f8c8d;
-            font-size: 14px;
-            max-width: 800px;
-            margin: 0 auto;
+        }
+        
+        .control-panel input, .control-panel select {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7;
+            font-size: 13px;
+        }
+        
+        .control-panel input {
+            width: 120px;
+        }
+        
+        .control-panel select {
+            width: 120px;
+            background-color: white;
+        }
+        
+        /* 统一按钮样式 */
+        .btn-uniform {
+            width: 100px;           /* 统一宽度 */
+            height: 36px;           /* 统一高度 */
+            padding: 0;             /* 清除内边距 */
+            font-size: 13px;        /* 字体大小 */
+            font-weight: bold;      /* 字体加粗 */
+            border-radius: 4px;     /* 圆角 */
+            border: none;           /* 清除边框 */
+            cursor: pointer;        /* 鼠标指针 */
+            display: flex;          /* 弹性布局 */
+            align-items: center;    /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+            transition: background-color 0.3s;
+        }
+        
+        /* 为不同颜色按钮设置背景色 */
+        .btn-generate {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-generate:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-save {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-import {
+            background-color: #e67e22;
+            color: white;
+        }
+        
+        .btn-import:hover {
+            background-color: #d35400;
+        }
+        
+        .btn-export {
+            background-color: #9b59b6;
+            color: white;
+        }
+        
+        .btn-export:hover {
+            background-color: #8e44ad;
+        }
+        
+        .btn-quickfill {
+            background-color: #1abc9c;
+            color: white;
+        }
+        
+        .btn-quickfill:hover {
+            background-color: #16a085;
+        }
+        
+        /* 按钮容器样式 */
+        .button-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        /* 按钮组标签 */
+        .button-group-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 3px;
+        }
+        
+        /* 文件上传按钮容器 */
+        .file-upload-container {
+            position: relative;
+        }
+        
+        .file-upload-container input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
         
         .main-container {
             display: flex;
-            flex: 1;
-            max-width: 1800px;
-            margin: 0 auto;
             gap: 20px;
-            width: 100%;
-            overflow: hidden;
+            height: calc(100vh - 120px);
         }
         
-        /* 左侧已编排考官面板 */
-        .assigned-panel {
-            width: 280px;
+        /* 左侧学科面板 */
+        .subject-panel {
+            width: 230px;
             background-color: white;
-            border-radius: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .assigned-panel-header {
             flex-shrink: 0;
         }
         
-        .assigned-panel-title {
-            font-size: 18px;
+        .panel-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
             color: #2c3e50;
-            margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 1px solid #ecf0f1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
-        .control-section {
+        .import-area {
             margin-bottom: 20px;
         }
         
-        .control-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #34495e;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        select, input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        select:focus, input:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-        
-        .assigned-examiner-list-container {
-            flex: 1;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-        
-        .assigned-examiner-item {
+        .import-section {
+            margin-bottom: 15px;
+            padding: 10px;
             background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
         }
         
-        .assigned-examiner-name {
-            font-weight: 600;
+        .import-section h4 {
+            margin-bottom: 8px;
             color: #2c3e50;
-            font-size: 14px;
+            font-size: 13px;
+        }
+        
+        .import-area textarea {
+            width: 100%;
+            height: 80px;
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 12px;
+            resize: vertical;
+            margin-bottom: 8px;
+        }
+        
+        .file-input-container {
+            margin-bottom: 8px;
+        }
+        
+        .file-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 12px;
+            background-color: white;
+        }
+        
+        .import-area button {
+            width: 100%;
+            padding: 8px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.3s;
             margin-bottom: 5px;
         }
         
-        .assigned-examiner-details {
-            font-size: 12px;
-            color: #7f8c8d;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
+        .import-area button:hover {
+            background-color: #27ae60;
         }
         
-        /* ✅ 折叠面板 */
-        .collapsible-section {
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            overflow: hidden;
-            margin-bottom: 15px;
+        /* 筛选器样式 */
+        .filter-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
         }
         
-        .collapsible-header {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .subject-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid #ecf0f1;
+            border-radius: 4px;
             padding: 10px;
-            background: #f0f4f8;
-            font-weight: 600;
-            font-size: 14px;
-            transition: background-color 0.2s;
         }
         
-        .collapsible-header:hover {
-            background-color: #e3f2fd;
-        }
-        
-        .arrow {
-            transition: transform 0.2s;
-        }
-        
-        .collapsible-content {
-            padding: 10px;
-            background: #fafafa;
-        }
-        
-        .stat-row {
+        .subject-item {
             display: flex;
-            justify-content: space-between;
+            padding: 8px 0;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
             font-size: 13px;
-            padding: 4px 0;
-            border-bottom: 1px dashed #eee;
+            transition: all 0.3s;
         }
         
-        .stat-row:last-child {
-            border-bottom: none;
+        /* 学科状态颜色 */
+        .subject-item.status-complete {
+            background-color: #d5f4e6;
+            border-left-color: #27ae60;
         }
         
-        .stat-area {
-            color: #333;
+        .subject-item.status-warning {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
         }
         
-        .stat-numbers {
-            color: #666;
+        .subject-item.status-error {
+            background-color: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        
+        .subject-name {
+            font-weight: 500;
+        }
+        
+        .subject-count {
+            color: #7f8c8d;
             font-size: 12px;
         }
         
-        /* 中央区域 */
+        .status-arranged {
+            color: #27ae60;
+            font-size: 11px;
+        }
+        
+        .status-warning {
+            color: #ffc107;
+            font-size: 11px;
+        }
+        
+        .status-error {
+            color: #dc3545;
+            font-size: 11px;
+        }
+        
+        /* 中间考场编排区域 */
         .arrangement-area {
-            flex: 1;
+            flex-grow: 1;
             background-color: white;
-            border-radius: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            min-width: 0;
         }
         
         .arrangement-header {
             margin-bottom: 15px;
             flex-shrink: 0;
-        }
-        
-        .control-buttons-container {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+        .table-container {
+            flex-grow: 1;
+            overflow: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            /* 新增：为表格容器设置相对定位和裁剪 */
+            position: relative;
         }
         
-        .btn-small {
+        table {
+            width: 100%;
+            border-collapse: separate; /* 修改为 separate 以便 sticky 生效 */
+            min-width: 1200px;
+        }
+        
+        thead {
+            background-color: #34495e;
+            color: white;
+            /* 新增：纵向冻结表头 */
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+        
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 6px 8px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        th {
+            font-weight: bold;
+        }
+        
+        .exam-room-header {
+            background-color: #2c3e50;
+        }
+        
+        .time-period-header {
             background-color: #3498db;
+        }
+        
+        .group-header {
+            background-color: #2980b9;
+        }
+        
+        .subject-drop {
+            min-height: 25px;
+            min-width: 50px;
+            border: 1px dashed #7f8c8d;
+            border-radius: 3px;
+            padding: 3px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.2s;
+        }
+        
+        .subject-dropped {
+            background-color: #d5f4e6;
+            border: 1px solid #27ae60;
+        }
+        
+        .remove-subject {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 16px;
+            height: 16px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 5;
+        }
+        
+        .subject-dropped:hover .remove-subject {
+            display: flex;
+        }
+        
+        .subject-dropped .remove-subject:hover {
+            background-color: #c0392b;
+        }
+        
+        .count-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #bdc3c7;
+            border-radius: 3px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .count-input::-webkit-outer-spin-button,
+        .count-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .count-input[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+        .total-cell {
+            background-color: #fcf3cf;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .row-handle {
+            cursor: move;
+            color: #7f8c8d;
+            text-align: center;
+            width: 30px;
+        }
+        
+        tr.ui-sortable-helper {
+            background-color: #e8f4fc;
+        }
+        
+        /* 右侧学科库 */
+        .subject-library {
+            width: 160px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        
+        .library-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .library-item {
+            padding: 8px 6px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            cursor: grab;
+            text-align: center;
+            border: 1px solid #bdc3c7;
+            transition: all 0.2s;
+            font-size: 12px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            user-select: none;
+        }
+        
+        .library-item:hover {
+            background-color: #d6dbdf;
+            transform: translateY(-2px);
+        }
+        
+        .library-item.ui-draggable-dragging {
+            opacity: 0.9;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: scale(1.05);
+            z-index: 10000;
+        }
+        
+        .status-indicator {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+        
+        .status-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .complete-color {
+            background-color: #d5f4e6;
+            border: 1px solid #27ae60;
+        }
+        
+        .warning-color {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+        }
+        
+        .error-color {
+            background-color: #f8d7da;
+            border: 1px solid #dc3545;
+        }
+        
+        .unarranged-color {
+            background-color: #f8f9fa;
+            border: 1px dashed #7f8c8d;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .filter-stats {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #bdc3c7;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #95a5a6;
+        }
+        
+        @media (max-width: 1400px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .subject-panel, .subject-library {
+                width: 100%;
+            }
+        }
+        
+        .subject-drop.highlight-drop {
+            background-color: #e3f2fd;
+            border-color: #3498db;
+            border-style: solid;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.7);
+            transform: scale(1.05);
+        }
+        
+        .empty-message {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 20px;
+            font-style: italic;
+        }
+        
+        .filter-dropdown {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 10px;
+            background-color: white;
+        }
+        
+        .quick-fill-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .quick-fill-hint {
+            font-size: 12px;
+            color: #7f8c8d;
+            flex-grow: 1;
+        }
+        
+        .center-quick-fill-btn {
+            background-color: #1abc9c;
             color: white;
             border: none;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 14px;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background-color 0.3s;
             white-space: nowrap;
         }
         
-        .btn-small:hover {
-            background-color: #2980b9;
-            transform: translateY(-1px);
+        .center-quick-fill-btn:hover {
+            background-color: #16a085;
         }
-        
-        .btn-import { background-color: #2ecc71; }
-        .btn-import:hover { background-color: #27ae60; }
-        .btn-export { background-color: #9b59b6; }
-        .btn-export:hover { background-color: #8e44ad; }
-        .btn-clear { background-color: #e74c3c; }
-        .btn-clear:hover { background-color: #c0392b; }
-        .btn-preview { background-color: #f39c12; }
-        .btn-preview:hover { background-color: #d68910; }
-        .btn-restore { background-color: #1abc9c; }
-        .btn-restore:hover { background-color: #16a085; }
-        .btn-danger { background-color: #e74c3c; }
-        .btn-danger:hover { background-color: #c0392b; }
-        
-        .auto-save-status {
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-left: 10px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .auto-save-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #2ecc71;
-            margin-right: 5px;
-            animation: pulse 2s infinite;
-        }
-        
-        .auto-save-dot.inactive {
-            background-color: #e74c3c;
-            animation: none;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        .file-input-hidden { display: none; }
-        
-        .arrangement-table-container {
-            flex: 1;
-            overflow: auto;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .table-fixed-header {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #2c3e50;
-        }
-        
-        .exam-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 1000px;
-        }
-        
-        .exam-table th {
-            background-color: #2c3e50;
-            color: white;
-            font-weight: 600;
-            text-align: center;
-            padding: 12px 8px;
-            border-right: 1px solid #3a506b;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .exam-table th:first-child { border-top-left-radius: 8px; }
-        .exam-table th:last-child { border-top-right-radius: 8px; border-right: none; }
-        
-        .exam-table td {
-            padding: 10px 8px;
-            border: 1px solid #e0e0e0;
-            text-align: center;
-            min-height: 60px;
-            vertical-align: middle;
-        }
-        
-        .col-room { width: 80px; background-color: #f8f9fa; font-weight: 600; }
-        .col-count { width: 150px; background-color: #f8f9fa; }
-        .col-teacher { width: 140px; }
-        .col-subject { width: 120px; }
-        
-        .teacher-drop-zone {
-            min-height: 60px;
-            border: 2px dashed #ddd;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #aaa;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-            padding: 8px;
-            position: relative;
-        }
-        
-        .teacher-drop-zone:hover {
-            border-color: #3498db;
-            background-color: #f0f8ff;
-        }
-        
-        .teacher-drop-zone.filled {
-            border-style: solid;
-            border-color: #d5e8f4;
-            background-color: #f0f8ff;
-            color: #333;
-            cursor: move;
-        }
-        
-        .teacher-info { width: 100%; }
-        .teacher-name { font-weight: 600; color: #2c3e50; font-size: 14px; margin-bottom: 4px; }
-        .teacher-school { font-size: 12px; color: #3498db; font-weight: 600; display: inline-block; padding: 2px 8px; background-color: #e8f4fc; border-radius: 10px; }
-        
-        .teacher-delete-btn {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: rgba(231, 76, 60, 0.9);
-            color: white;
-            border: none;
-            font-size: 12px;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
-        }
-        
-        .teacher-drop-zone.filled:hover .teacher-delete-btn { display: flex; }
-        
-        /* 右侧考官面板 */
-        .examiner-panel {
-            width: 300px;
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .panel-header { flex-shrink: 0; }
-        .panel-title {
-            font-size: 18px;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ecf0f1;
+
+        /* ================= 新增：右侧学科卡片增强 ================= */
+        .library-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 6px 8px;
         }
-        
-        .search-box { position: relative; }
-        .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #7f8c8d; }
-        
-        .examiner-list-container { flex: 1; overflow-y: auto; margin-top: 10px; }
-        
-        .examiner-item {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            padding: 12px;
+
+        .lib-arranged-count {
+            font-weight: bold;
+            margin-left: 6px;
+            font-size: 11px;
+        }
+
+        .lib-arranged-zero {
+            background-color: #d5f4e6; /* 已完成 */
+        }
+
+        .lib-arranged-positive {
+            background-color: #f8d7da; /* 超编 */
+        }
+
+        .lib-arranged-negative {
+            background-color: #fff3cd; /* 未完成 */
+        }
+
+        /* 右侧筛选区新增复选框样式 */
+        .filter-checkbox-container {
             margin-bottom: 10px;
-            cursor: move;
-            transition: all 0.2s;
-            position: relative;
-        }
-        
-        .examiner-item.assigned { background-color: #e8f5e9; border-color: #c8e6c9; }
-        .examiner-item.disabled { background-color: #ffebee; border-color: #ffcdd2; cursor: not-allowed; }
-        
-        .examiner-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .examiner-name { font-weight: 600; color: #2c3e50; font-size: 14px; }
-        .examiner-subject-badge { display: inline-block; background-color: #e8f4fc; color: #3498db; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-        .examiner-details { font-size: 12px; color: #7f8c8d; display: flex; flex-direction: column; gap: 2px; }
-        
-        .examiner-toggle-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: none;
             font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
         }
-        
-        .examiner-toggle-btn.disable-btn { background-color: #e74c3c; color: white; }
-        .examiner-toggle-btn.enable-btn { background-color: #2ecc71; color: white; }
-        
-        .assigned-filter { display: flex; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #ecf0f1; }
-        .filter-label { font-size: 14px; color: #34495e; margin-right: 10px; }
-        .filter-checkbox { width: auto; margin-right: 5px; }
-        
-        .status-info {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #ecf0f1;
-            font-size: 14px;
-            color: #7f8c8d;
-        }
-        
-        .drop-zone-hover { border-color: #3498db !important; background-color: #e3f2fd !important; }
-        .row-drop-zone-hover { background-color: #e3f2fd !important; }
-        
-        .no-data-msg { text-align: center; color: #7f8c8d; padding: 40px 20px; font-size: 16px; }
-        .no-data-msg .icon { font-size: 48px; margin-bottom: 15px; color: #bdc3c7; }
-        
-        .modal-overlay {
-            position: fixed;
-            top: 0;
+
+        /* ================= 新增：表格冻结行列 ================= */
+        /* 冻结左侧两列 (拖动 + 考场号) */
+        #exam-table th:nth-child(1),
+        #exam-table td:nth-child(1),
+        #exam-table th:nth-child(2),
+        #exam-table td:nth-child(2) {
+            position: sticky;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            z-index: 15;
+            background-color: #ecf0f1; /* 与表头背景一致 */
+            min-width: 40px;
         }
-        
-        .modal-content {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow: auto;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+
+        #exam-table th:nth-child(2),
+        #exam-table td:nth-child(2) {
+            left: 40px; /* 紧跟第一列 */
         }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ecf0f1;
+
+        /* 表头与冻结列交叉区域最高层级 */
+        #exam-table thead th:nth-child(1),
+        #exam-table thead th:nth-child(2) {
+            z-index: 25;
+            background-color: #34495e; /* 确保表头颜色覆盖 */
         }
-        
-        .modal-title { font-size: 18px; color: #2c3e50; font-weight: 600; }
-        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #7f8c8d; }
-        
-        @media (max-width: 1400px) {
-            .main-container { flex-direction: column; height: auto; }
-            .assigned-panel, .examiner-panel { width: 100%; max-height: 400px; }
+
+        /* ================= 网页表格：人数列加宽 ================= */
+        #exam-table td:nth-child(4),
+        #exam-table th:nth-child(4),
+        #exam-table td:nth-child(6),
+        #exam-table th:nth-child(6),
+        #exam-table td:nth-child(8),
+        #exam-table th:nth-child(8),
+        #exam-table td:nth-child(10),
+        #exam-table th:nth-child(10),
+        #exam-table td:nth-child(13),
+        #exam-table th:nth-child(13),
+        #exam-table td:nth-child(15),
+        #exam-table th:nth-child(15),
+        #exam-table td:nth-child(17),
+        #exam-table th:nth-child(17),
+        #exam-table td:nth-child(19),
+        #exam-table th:nth-child(19),
+        #exam-table td:nth-child(22),
+        #exam-table th:nth-child(22),
+        #exam-table td:nth-child(24),
+        #exam-table th:nth-child(24),
+        #exam-table td:nth-child(26),
+        #exam-table th:nth-child(26),
+        #exam-table td:nth-child(28),
+        #exam-table th:nth-child(28),
+        #exam-table td:nth-child(31),
+        #exam-table th:nth-child(31),
+        #exam-table td:nth-child(33),
+        #exam-table th:nth-child(33),
+        #exam-table td:nth-child(35),
+        #exam-table th:nth-child(35),
+        #exam-table td:nth-child(37),
+        #exam-table th:nth-child(37) {
+            min-width: 50px;   /* 人数列宽度 */
+            width: 50px;
         }
-        
-        @media (max-width: 768px) {
-            .control-buttons-container { flex-direction: column; }
-            .btn-group { width: 100%; }
-            .btn-small { flex: 1; min-width: 120px; }
+
+        /* ================= 新增：顶部全局统计栏样式 ================= */
+       #global-stats {
+    display: flex;
+    justify-content: center;     /* ✅ 整体居中 */
+    gap: 50px;                 /* ✅ 控制各项之间的间距 */
+    padding: 10px 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+        #global-stats .stat-item {
+            color: #2c3e50;
         }
+
+        #global-stats #stat-total-remain {
+            color: #e74c3c; /* 剩余人数标红 */
+        }
+
     </style>
 </head>
 <body>
-    <header>
-        <h1>考官编排管理系统</h1>
-        <p class="description">导入考官信息和学科人数数据，通过拖拽方式编排考官到8列表格中</p>
-    </header>
-    
-    <div class="main-container">
-        <!-- 左侧已编排考官面板 -->
-        <div class="assigned-panel">
-            <div class="assigned-panel-header">
-                <div class="assigned-panel-title">
-                    <span>已编排考官</span>
-                </div>
-                
-                <!-- ✅ 折叠统计：县区 -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapse('area-stats-content', 'area-stats-arrow')">
-                        <span>📊 县区已编排统计</span>
-                        <span class="arrow" id="area-stats-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-content" id="area-stats-content"></div>
-                </div>
-
-                <!-- ✅ 新增：市直单位统计 -->
-                <div class="collapsible-section">
-                    <div class="collapsible-header" onclick="toggleCollapse('city-stats-content', 'city-stats-arrow')">
-                        <span>🏫 市直单位统计</span>
-                        <span class="arrow" id="city-stats-arrow">▼</span>
-                    </div>
-                    <div class="collapsible-content" id="city-stats-content"></div>
-                </div>
-
-                <!-- ✅ 新增：已编排考官搜索 -->
-                <div class="control-section">
-                    <label class="control-label">搜索已编排考官</label>
-                    <div class="search-box">
-                        <input type="text" id="assigned-examiner-search" placeholder="输入单位/姓名/学科...">
-                        <span class="search-icon">🔍</span>
-                    </div>
+    <div class="header">
+        <h1>学科编排系统</h1>
+        <div class="control-panel">
+            <div class="control-group">
+                <label for="max-room">考场数</label>
+                <input type="number" id="max-room" value="60" min="1" max="200">
+            </div>
+            
+            <div class="control-group">
+                <div class="button-group-label">操作</div>
+                <div class="button-container">
+                    <button id="generate-rooms" class="btn-uniform btn-generate">生成考场</button>
+                    <button id="save-data" class="btn-uniform btn-save">保存数据</button>
                 </div>
             </div>
             
-            <!-- ✅ 搜索结果列表 -->
-            <div class="assigned-examiner-list-container">
-                <div class="assigned-examiner-list" id="assigned-examiner-search-result">
-                    <!-- 搜索结果将在这里显示 -->
+            <div class="control-group">
+                <div class="button-group-label">文件</div>
+                <div class="button-container">
+                    <div class="file-upload-container">
+                        <button class="btn-uniform btn-import">还原数据</button>
+                        <input type="file" id="restore-file" accept=".json">
+                    </div>
+                    <button id="export-data" class="btn-uniform btn-export">导出Excel</button>
                 </div>
             </div>
         </div>
-        
-        <!-- 中央编排区域 -->
-        <div class="arrangement-area">
-            <div class="arrangement-header">
-                <div class="control-buttons-container">
-                    <div class="btn-group">
-                        <button id="import-examiners" class="btn-small btn-import">导入考官数据</button>
-                        <button id="import-subject-counts" class="btn-small btn-import">导入学科人数</button>
-                        <button id="clear-examiners" class="btn-small btn-danger">清空考官信息库</button>
-                        <button id="clear-subject-counts" class="btn-small btn-danger">清空学科人数</button>
-                        <button id="preview-export" class="btn-small btn-preview">导出前预览</button>
-                        <button id="backup-data" class="btn-small">备份数据</button>
-                        <button id="restore-data" class="btn-small btn-restore">还原备份</button>
-                        <button id="clear-all" class="btn-small btn-clear">清空所有编排</button>
-                    </div>
-                    
-                    <div class="btn-group">
-                        <button id="export-csv" class="btn-small btn-export">导出编排表 (CSV)</button>
-                        <button id="export-xlsx" class="btn-small btn-export">导出编排表 (XLSX)</button>
-                        <button id="export-txt" class="btn-small btn-export">导出编排表 (TXT)</button>
-                    </div>
+    </div>
+    
+    <!-- ================= 新增：全局统计信息 ================= -->
+    <div id="global-stats">
+        <div class="stat-item">总人数：<span id="stat-total-count">0</span></div>
+        <div class="stat-item">第一天上午：<span id="stat-day1am-arranged">0</span></div>
+        <div class="stat-item">第一天下午：<span id="stat-day1pm-arranged">0</span></div>
+        <div class="stat-item">第二天上午：<span id="stat-day2am-arranged">0</span></div>
+        <div class="stat-item">第二天下午：<span id="stat-day2pm-arranged">0</span></div>
+        <div class="stat-item">剩余人数：<span id="stat-total-remain">0</span></div>
+    </div>
+
+    <div class="main-container">
+        <div class="subject-panel">
+            <div class="panel-title">学科管理</div>
+            
+            <div class="import-area">
+                <div class="import-section">
+                    <h4>导入学科数据</h4>
+                    <p style="font-size: 12px; margin-bottom: 8px; color: #7f8c8d;">格式：学科 人数（每行一个）</p>
+                    <textarea id="subject-input" placeholder="例如：
+高数 120
+高语 100
+高英 90
+..."></textarea>
+                    <button id="import-subjects">导入学科</button>
                 </div>
                 
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="exam-room-control" style="display: flex; align-items: center; gap: 10px;">
-                        <label style="font-weight: 600;">考场数量：</label>
-                        <input type="number" id="room-count" style="width: 80px; padding: 8px;" min="1" max="100" value="68">
-                        <button id="update-rooms" class="btn-small">更新考场</button>
-                    </div>
-                    
-                    <div class="auto-save-status" id="auto-save-status">
-                        <span class="auto-save-dot inactive" id="auto-save-dot"></span>
-                        <span id="auto-save-text">自动保存已禁用</span>
-                    </div>
-                </div>
+                <div class="error-message" id="import-error"></div>
+                <div class="success-message" id="import-success"></div>
             </div>
             
-            <div class="arrangement-table-container">
-                <table class="exam-table" id="exam-table">
-                    <thead class="table-fixed-header">
+            <div class="filter-section">
+                <div class="panel-title" style="font-size: 14px; margin-bottom: 8px;">筛选学科</div>
+                <select class="filter-dropdown" id="left-filter-select">
+                    <option value="all">全部学科</option>
+                    <option value="preschool">幼教学科</option>
+                    <option value="primary">小学学科</option>
+                    <option value="junior">初中学科</option>
+                    <option value="high">高中学科</option>
+                    <option value="vocational">中职学科</option>
+                </select>
+                <div class="filter-stats" id="left-filter-stats">共 0 个学科</div>
+            </div>
+            
+            <div class="panel-title">学科列表（按人数排序）</div>
+            <div class="subject-list" id="subject-list">
+                <div class="empty-message">暂无学科数据，请导入</div>
+            </div>
+            
+            <div class="status-indicator">
+                <div class="status-item"><div class="status-color complete-color"></div><span>100%已编排</span></div>
+                <div class="status-item"><div class="status-color warning-color"></div><span>未编排完</span></div>
+                <div class="status-item"><div class="status-color error-color"></div><span>超编排</span></div>
+                <div class="status-item"><div class="status-color unarranged-color"></div><span>未编排</span></div>
+            </div>
+        </div>
+        
+        <div class="arrangement-area">
+            <div class="arrangement-header">
+                <div class="panel-title">考场编排表</div>
+                <div id="arrangement-stats" style="font-size: 13px; color: #7f8c8d;">共 0 个考场</div>
+            </div>
+            
+            <div class="quick-fill-container">
+                <button id="center-quick-fill" class="center-quick-fill-btn">快速编排</button>
+                <div class="quick-fill-hint">快速编排规则：每个考场只填充一个学科，上午小计不超过12人，下午小计不超过13人，只处理人数≥50的学科</div>
+            </div>
+            
+            <div class="table-container">
+                <table id="exam-table">
+                    <thead>
                         <tr>
-                            <th class="col-room">考场号</th>
-                            <th class="col-count">学科人数</th>
-                            <th class="col-teacher">教师姓名1</th>
-                            <th class="col-subject">学科1</th>
-                            <th class="col-teacher">教师姓名2</th>
-                            <th class="col-subject">学科2</th>
-                            <th class="col-teacher">教师姓名3</th>
-                            <th class="col-subject">学科3</th>
+                            <th class="row-handle">拖动</th>
+                            <th class="exam-room-header">考场号</th>
+                            <th class="time-period-header" colspan="9">第一天上午</th>
+                            <th class="time-period-header" colspan="9">第一天下午</th>
+                            <th class="time-period-header" colspan="9">第二天上午</th>
+                            <th class="time-period-header" colspan="9">第二天下午</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>A</th>
+                            <th class="group-header" colspan="2">第1组</th>
+                            <th class="group-header" colspan="2">第2组</th>
+                            <th class="group-header" colspan="2">第3组</th>
+                            <th class="group-header" colspan="2">第4组</th>
+                            <th>J</th>
+                            <th class="group-header" colspan="2">第1组</th>
+                            <th class="group-header" colspan="2">第2组</th>
+                            <th class="group-header" colspan="2">第3组</th>
+                            <th class="group-header" colspan="2">第4组</th>
+                            <th>S</th>
+                            <th class="group-header" colspan="2">第1组</th>
+                            <th class="group-header" colspan="2">第2组</th>
+                            <th class="group-header" colspan="2">第3组</th>
+                            <th class="group-header" colspan="2">第4组</th>
+                            <th>AD</th>
+                            <th class="group-header" colspan="2">第1组</th>
+                            <th class="group-header" colspan="2">第2组</th>
+                            <th class="group-header" colspan="2">第3组</th>
+                            <th class="group-header" colspan="2">第4组</th>
+                            <th>AI</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th>考场号</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>小计</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>小计</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>小计</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>学科</th><th>人数</th>
+                            <th>小计</th>
                         </tr>
                     </thead>
-                    <tbody id="exam-table-body"></tbody>
+                    <tbody id="table-body">
+                    </tbody>
                 </table>
             </div>
         </div>
         
-        <!-- 右侧考官信息面板 -->
-        <div class="examiner-panel">
-            <div class="panel-header">
-                <div class="panel-title">
-                    <span>考官信息库</span>
-                    <span id="examiner-count">0 位</span>
-                </div>
+        <div class="subject-library">
+            <div class="panel-title">学科列表</div>
+            
+            <div class="filter-section">
+                <!-- 新增：搜索框 -->
+                <input type="text" id="right-search-input" placeholder="搜索学科名称..." style="width:100%;padding:6px;margin-bottom:8px;border:1px solid #bdc3c7;border-radius:4px;font-size:12px;">
                 
-                <!-- ✅ 学科关键字搜索 -->
-                <div class="control-section">
-                    <label class="control-label">搜索学科关键字</label>
-                    <div class="search-box">
-                        <input type="text" id="subject-keyword-search" placeholder="如：音、体、英...">
-                        <span class="search-icon">🔍</span>
-                    </div>
-                </div>
-                
-                <div class="control-section">
-                    <label class="control-label">搜索考官姓名</label>
-                    <div class="search-box">
-                        <input type="text" id="name-search" placeholder="输入考官姓名...">
-                        <span class="search-icon">🔍</span>
-                    </div>
-                </div>
-                
-                <div class="assigned-filter">
-                    <label class="filter-label">
-                        <input type="checkbox" id="hide-assigned" class="filter-checkbox">
-                        隐藏已编排考官
+                <div class="filter-checkbox-container" style="margin-bottom:8px;">
+                    <label>
+                        <input type="checkbox" id="right-filter-arranged-done"> 隐藏已编排完学科
                     </label>
                 </div>
-                
-                <div class="status-info">
-                    <span id="unassigned-count">未分配: 0</span>
-                    <span id="assigned-count">已分配: 0</span>
-                </div>
+                <select class="filter-dropdown" id="right-filter-select">
+                    <option value="all">全部学科</option>
+                    <option value="preschool">幼教学科</option>
+                    <option value="primary">小学学科</option>
+                    <option value="junior">初中学科</option>
+                    <option value="high">高中学科</option>
+                    <option value="vocational">中职学科</option>
+                </select>
+                <div class="filter-stats" id="right-filter-stats">共 0 个学科</div>
             </div>
             
-            <div class="examiner-list-container">
-                <div class="examiner-list" id="examiner-list">
-                    <div class="no-data-msg"><div class="icon">👤</div><div>请导入考官数据</div></div>
-                </div>
+            <div class="library-container" id="library-container">
+                <div class="empty-message">暂无学科数据</div>
             </div>
         </div>
     </div>
 
-    <input type="file" id="file-input-examiners" class="file-input-hidden" accept=".txt">
-    <input type="file" id="file-input-subject-counts" class="file-input-hidden" accept=".txt">
-    <input type="file" id="file-input-restore" class="file-input-hidden" accept=".json">
-
-    <div id="preview-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">导出预览</h3>
-                <button class="modal-close" id="close-preview">×</button>
-            </div>
-            <div id="preview-content"></div>
-        </div>
-    </div>
-<script>
-        let examiners = [];
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        let subjects = [];
         let examRooms = [];
-        let subjectCounts = {};
-        let currentRoomCount = 68;
-        let nextExaminerId = 1;
-        let autoSaveEnabled = false;
-        let isDataModified = false;
-        let lastBackupData = null;
-
-        // DOM 元素
-        const fileInputExaminers = document.getElementById('file-input-examiners');
-        const fileInputSubjectCounts = document.getElementById('file-input-subject-counts');
-        const fileInputRestore = document.getElementById('file-input-restore');
-        const importExaminersBtn = document.getElementById('import-examiners');
-        const importSubjectCountsBtn = document.getElementById('import-subject-counts');
-        const backupDataBtn = document.getElementById('backup-data');
-        const restoreDataBtn = document.getElementById('restore-data');
-        const clearExaminersBtn = document.getElementById('clear-examiners');
-        const clearSubjectCountsBtn = document.getElementById('clear-subject-counts');
-        const exportCsvBtn = document.getElementById('export-csv');
-        const exportXlsxBtn = document.getElementById('export-xlsx');
-        const exportTxtBtn = document.getElementById('export-txt');
-        const previewExportBtn = document.getElementById('preview-export');
-        const clearAllBtn = document.getElementById('clear-all');
-        const roomCountInput = document.getElementById('room-count');
-        const updateRoomsBtn = document.getElementById('update-rooms');
-        const nameSearch = document.getElementById('name-search');
-        const hideAssignedCheckbox = document.getElementById('hide-assigned');
-        const examinerList = document.getElementById('examiner-list');
-        const assignedExaminerSearchResult = document.getElementById('assigned-examiner-search-result');
-        const examinerCount = document.getElementById('examiner-count');
-        const unassignedCount = document.getElementById('unassigned-count');
-        const assignedCount = document.getElementById('assigned-count');
-        const examTableBody = document.getElementById('exam-table-body');
-        const previewModal = document.getElementById('preview-modal');
-        const closePreviewBtn = document.getElementById('close-preview');
-        const previewContent = document.getElementById('preview-content');
-        const autoSaveStatus = document.getElementById('auto-save-status');
-        const autoSaveDot = document.getElementById('auto-save-dot');
-        const autoSaveText = document.getElementById('auto-save-text');
-        const subjectKeywordSearch = document.getElementById('subject-keyword-search');
-        const assignedExaminerSearch = document.getElementById('assigned-examiner-search');
-
-        // ✅ 统一刷新入口
-        function refreshAllUI() {
-            updateExamTable();
-            updateExaminerList();
-            updateAssignedAreaStatistics();
-            updateCityStats();
-            performAssignedExaminerSearch();
-        }
-
-        // ==================== 折叠面板通用函数 ====================
-        function toggleCollapse(contentId, arrowId) {
-            const content = document.getElementById(contentId);
-            const arrow = document.getElementById(arrowId);
-            if (!content || !arrow) return;
-
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                arrow.textContent = '▼';
-                arrow.style.transform = 'rotate(0deg)';
-            } else {
-                content.style.display = 'none';
-                arrow.textContent = '▶';
-                arrow.style.transform = 'rotate(-90deg)';
-            }
-        }
-
-        // ==================== 统计功能 ====================
-        function updateAssignedAreaStatistics() {
-            const container = document.getElementById('area-stats-content');
-            if (!container) return;
-
-            const areaRules = [
-                { name: '珠山区', keyword: '珠山区' },
-                { name: '昌江区', keyword: '昌江区' },
-                { name: '浮梁县', keyword: '浮梁县' },
-                { name: '乐平市', keyword: '乐平市' }
-            ];
-
-            const assigned = examiners.filter(e => e.assigned);
-            let html = '';
-            areaRules.forEach(rule => {
-                const list = assigned.filter(e => e.school && e.school.includes(rule.keyword));
-                const total = list.length;
-                const male = list.filter(e => e.gender === '男').length;
-                const female = list.filter(e => e.gender === '女').length;
-                html += `<div class="stat-row"><span class="stat-area">${rule.name}</span><span class="stat-numbers">合计：${total} <span style="color:#3498db;">(男：${male}</span> / <span style="color:#e91e63;">女：${female})</span></span></div>`;
-            });
-            container.innerHTML = html || '<div class="stat-row">暂无数据</div>';
-        }
-
-        // ✅ 新增：市直单位统计
-        function updateCityStats() {
-    const container = document.getElementById('city-stats-content');
-    if (!container) return;
-
-    // 筛选出已编排且单位包含“景德镇”的考官
-    const assigned = examiners.filter(e => e.assigned && e.school && e.school.includes('景德镇'));
-    
-    // 按学校名称去重并排序
-    const schools = [...new Set(assigned.map(e => e.school))].sort();
-
-    let html = '';
-    schools.forEach(school => {
-        // 统计该单位的总人数
-        const total = assigned.filter(e => e.school === school).length;
+        let maxRooms = 60;
+        let activeLeftFilter = 'all';
+        let activeRightFilter = 'all';
+        let isDataLoaded = false;
         
-        // 修改点：只显示单位和合计人数，移除男女统计
-        html += `<div class="stat-row">
-                    <span class="stat-area">${school}</span>
-                    <span class="stat-numbers">合计：${total} 人</span>
-                 </div>`;
-    });
-    
-    container.innerHTML = html || '<div class="stat-row">暂无数据</div>';
-}
-
-        // ✅ 新增：已编排考官搜索
-        function performAssignedExaminerSearch() {
-            const keyword = assignedExaminerSearch ? assignedExaminerSearch.value.toLowerCase() : '';
-            let list = examiners.filter(e => e.assigned);
-
-            if (keyword) {
-                list = list.filter(e =>
-                    (e.name && e.name.toLowerCase().includes(keyword)) ||
-                    (e.school && e.school.toLowerCase().includes(keyword)) ||
-                    (e.subject && e.subject.toLowerCase().includes(keyword))
-                );
-            }
-
-            if (list.length === 0) {
-                assignedExaminerSearchResult.innerHTML = '<div class="no-data-msg"><div class="icon">🔍</div><div>没有找到符合条件的考官</div></div>';
+        const detectSubjectCategory = (subjectName) => {
+            if (subjectName.startsWith('幼')) return 'preschool';
+            if (subjectName.startsWith('小')) return 'primary';
+            if (subjectName.startsWith('初')) return 'junior';
+            if (subjectName.startsWith('高')) return 'high';
+            return 'vocational';
+        };
+        
+        $(document).ready(function() {
+            subjects = [];
+            renderSubjectList();
+            renderSubjectLibrary();
+            bindEvents();
+            setTimeout(initDragAndDrop, 100);
+        });
+        
+        function renderSubjectList() {
+            const $list = $('#subject-list').empty();
+            if (subjects.length === 0) {
+                $list.html('<div class="empty-message">暂无学科数据，请导入</div>');
                 return;
             }
-
-            let html = '';
-            list.forEach(examiner => {
-                html += `
-                    <div class="assigned-examiner-item">
-                        <div class="assigned-examiner-name">${examiner.name} (${examiner.gender})</div>
-                        <div class="assigned-examiner-details">
-                            <div>工作单位：${examiner.school}</div>
-                            <div>学科：${examiner.subject}</div>
-                            <div>联系电话：${examiner.phone}</div>
+            const sortedSubjects = [...subjects].sort((a, b) => b.count - a.count);
+            const filteredSubjects = sortedSubjects.filter(s => activeLeftFilter === 'all' || s.category === activeLeftFilter);
+            $('#left-filter-stats').text(`共 ${filteredSubjects.length} 个学科`);
+            if (filteredSubjects.length === 0) {
+                $list.html('<div class="empty-message">没有符合条件的学科</div>');
+                return;
+            }
+            recalculateAllSubjects();
+            filteredSubjects.forEach(subject => {
+                const arrangedPercent = subject.count > 0 ? Math.round((subject.arranged / subject.count) * 100) : 0;
+                let statusClass = '', itemClass = 'subject-item';
+                if (subject.count === 0) { statusClass = 'status-unarranged'; }
+                else if (subject.arranged > subject.count) { statusClass = 'status-error'; itemClass += ' status-error'; }
+                else if (subject.arranged === subject.count) { statusClass = 'status-arranged'; itemClass += ' status-complete'; }
+                else if (subject.arranged > 0) { statusClass = 'status-warning'; itemClass += ' status-warning'; }
+                else { statusClass = 'status-unarranged'; }
+                $list.append(`
+                    <div class="${itemClass}" data-name="${subject.name}" data-category="${subject.category}">
+                        <div class="subject-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 6px 0;">
+                            <div class="subject-name-col" style="flex: 2; min-width: 0;"><span class="subject-name" style="font-size: 13px; font-weight: bold; color: #2c3e50; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${subject.name}</span></div>
+                            <div class="subject-count-col" style="flex: 1.5; text-align: center; padding: 0 5px;"><span class="subject-count" style="font-size: 12px; font-weight: bold; color: #3498db; background-color: #f0f8ff; padding: 2px 6px; border-radius: 3px; display: inline-block; min-width: 45px;">${subject.arranged}/${subject.count}</span></div>
+                            <div class="subject-percent-col" style="flex: 1; text-align: right;"><span class="${statusClass}" style="font-size: 12px; font-weight: bold; color: ${statusClass === 'status-arranged' ? '#27ae60' : statusClass === 'status-warning' ? '#f39c12' : statusClass === 'status-error' ? '#e74c3c' : '#7f8c8d'}; background-color: ${statusClass === 'status-arranged' ? '#f0fff4' : statusClass === 'status-warning' ? '#fffbf0' : statusClass === 'status-error' ? '#fff0f0' : '#f8f9fa'}; padding: 2px 6px; border-radius: 3px; display: inline-block; min-width: 35px;">${arrangedPercent}%</span></div>
                         </div>
                     </div>
-                `;
+                `);
             });
-            assignedExaminerSearchResult.innerHTML = html;
         }
-
-        // ==================== 原功能函数（已修复） ====================
-        function parseExaminerFile(content) {
-            const lines = content.split('\n');
-            const newExaminers = [];
-            lines.forEach(line => {
-                line = line.trim();
-                if (!line) return;
-                const parts = line.split(/\t| {2,}/);
-                if (parts.length >= 6) {
-                    newExaminers.push({
-                        id: nextExaminerId++,
-                        name: parts[0],
-                        school: parts[1],
-                        subject: parts[2],
-                        phone: parts[3],
-                        period: parts[4],
-                        gender: parts[5],
-                        assigned: false,
-                        disabled: false,
-                        assignedRoom: null
+        
+        function recalculateAllSubjects() {
+            subjects.forEach(subject => subject.arranged = 0);
+            if (!isDataLoaded || examRooms.length === 0) return;
+            examRooms.forEach(room => {
+                ['day1am', 'day1pm', 'day2am', 'day2pm'].forEach(period => {
+                    room[period].forEach(group => {
+                        if (group.subject && group.subject.trim() !== '') {
+                            const subject = subjects.find(s => s.name === group.subject);
+                            if (subject) subject.arranged += (parseInt(group.count) || 0);
+                        }
                     });
-                }
-            });
-            return newExaminers;
-        }
-        
-        function parseSubjectCountsFile(content) {
-            const lines = content.split('\n');
-            const counts = {};
-            lines.forEach((line, index) => {
-                line = line.trim();
-                if (!line) return;
-                const roomNumber = index + 1;
-                const parts = line.split('\t').filter(p => p.trim() !== '');
-                let roomCounts = [];
-                parts.forEach(part => {
-                    if (/^\d+$/.test(part.trim())) return;
-                    const m = part.match(/(\d+)(.+)/);
-                    if (m) roomCounts.push(`${m[2].trim()}: ${m[1]}人`);
                 });
-                counts[roomNumber] = roomCounts.join('<br>');
             });
-            return counts;
         }
         
-        function findExaminerRoom(examinerId) {
-            for (let room of examRooms) {
-                for (let i = 0; i < room.examiners.length; i++) {
-                    if (room.examiners[i] === examinerId) return room.id;
-                }
-            }
-            return null;
-        }
-        
-        function updateExaminerList() {
-            let filtered = examiners;
-            const keyword = subjectKeywordSearch ? subjectKeywordSearch.value.toLowerCase() : '';
-            const nameVal = nameSearch.value.toLowerCase();
-            const hideAssigned = hideAssignedCheckbox.checked;
+        // ================= 修改：右侧学科库渲染逻辑 =================
+        function renderSubjectLibrary() {
+            const $library = $('#library-container').empty();
             
-            if (keyword) filtered = filtered.filter(e => e.subject && e.subject.toLowerCase().includes(keyword));
-            if (nameVal) filtered = filtered.filter(e => e.name.toLowerCase().includes(nameVal));
-            if (hideAssigned) filtered = filtered.filter(e => !e.assigned);
+            // 新增：获取搜索关键词
+            const searchKeyword = $('#right-search-input').val().toLowerCase().trim();
             
-            const total = examiners.length;
-            const assigned = examiners.filter(e => e.assigned).length;
-            examinerCount.textContent = `${total} 位`;
-            unassignedCount.textContent = `未分配: ${total - assigned}`;
-            assignedCount.textContent = `已分配: ${assigned}`;
-            
-            if (filtered.length === 0) {
-                examinerList.innerHTML = '<div class="no-data-msg"><div class="icon">🔍</div><div>没有找到符合条件的考官</div></div>';
+            if (subjects.length === 0) {
+                $library.html('<div class="empty-message">暂无学科数据</div>');
                 return;
             }
             
-            let html = '';
-            filtered.forEach(examiner => {
-                const roomNumber = findExaminerRoom(examiner.id);
-                examiner.assignedRoom = roomNumber;
-                const assignedClass = examiner.assigned ? 'assigned' : '';
-                const disabledClass = examiner.disabled ? 'disabled' : '';
-                const toggleClass = examiner.disabled ? 'enable-btn' : 'disable-btn';
-                const toggleText = examiner.disabled ? '✓' : '×';
-                const roomText = roomNumber ? `考场${roomNumber}` : '';
-                
-                html += `<div class="examiner-item ${assignedClass} ${disabledClass}" data-id="${examiner.id}" ondragstart="${examiner.disabled ? '' : 'dragExaminerStart(event)'}" ${examiner.disabled ? '' : 'draggable="true"'}>
-                    <button class="examiner-toggle-btn ${toggleClass}" onclick="toggleExaminerStatus(event, ${examiner.id})">${toggleText}</button>
-                    ${roomText ? `<span class="examiner-room-number">${roomText}</span>` : ''}
-                    <div class="examiner-main"><div class="examiner-name">${examiner.name} (${examiner.gender})</div><div class="examiner-subject-badge">${examiner.subject}</div></div>
-                    <div class="examiner-details"><div>${examiner.school}</div><div>${examiner.phone} | ${examiner.period}期</div></div>
-                </div>`;
-            });
-            examinerList.innerHTML = html;
-        }
-        
-        function toggleExaminerStatus(event, examinerId) {
-            event.stopPropagation();
-            const examiner = examiners.find(e => e.id === examinerId);
-            if (!examiner) return;
-            examiner.disabled = !examiner.disabled;
-            if (examiner.disabled && examiner.assigned) {
-                examRooms.forEach(room => {
-                    const idx = room.examiners.indexOf(examinerId);
-                    if (idx !== -1) room.examiners[idx] = null;
+            let sortedSubjects = [...subjects].sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+
+            // 1. 搜索过滤（新增）
+            if (searchKeyword) {
+                sortedSubjects = sortedSubjects.filter(s => s.name.toLowerCase().includes(searchKeyword));
+            }
+
+            // 2. 下拉分类过滤
+            if (activeRightFilter !== 'all') {
+                sortedSubjects = sortedSubjects.filter(s => s.category === activeRightFilter);
+            }
+            
+            // 3. 复选框过滤（隐藏已编排完）
+            if ($('#right-filter-arranged-done').is(':checked')) {
+                sortedSubjects = sortedSubjects.filter(s => s.arranged !== s.count);
+            }
+            
+            $('#right-filter-stats').text(`共 ${sortedSubjects.length} 个学科`);
+            if (sortedSubjects.length === 0) {
+                $library.html('<div class="empty-message">没有符合条件的学科</div>');
+                return;
+            }
+            
+            const subjectsByCategory = { preschool: [], primary: [], junior: [], high: [], vocational: [] };
+            sortedSubjects.forEach(subject => subjectsByCategory[subject.category].push(subject));
+            
+            const categories = [ { key: 'high', name: '高中' }, { key: 'junior', name: '初中' }, { key: 'primary', name: '小学' }, { key: 'preschool', name: '幼教' }, { key: 'vocational', name: '中职' }];
+            let hasVisibleContent = false;
+            
+            categories.forEach(category => {
+                const categorySubjects = subjectsByCategory[category.key];
+                if (categorySubjects.length === 0) return;
+                hasVisibleContent = true;
+                $library.append(`<div class="panel-title" style="font-size: 13px; margin: 10px 0 5px 0; color: #7f8c8d;">${category.name} (${categorySubjects.length})</div>`);
+                categorySubjects.forEach(subject => {
+                    const diff = subject.arranged - subject.count;
+                    let cardClass = 'library-item lib-arranged-negative';
+                    if (diff === 0) cardClass = 'library-item lib-arranged-zero';
+                    if (diff > 0) cardClass = 'library-item lib-arranged-positive';
+                    
+                    // 修改为：卡片内显示未编排人数
+                    const unarrangedCount = subject.count - subject.arranged;
+                    $library.append(`<div class="${cardClass}" data-name="${subject.name}" data-category="${subject.category}">${subject.name}<span class="lib-arranged-count">${unarrangedCount}</span></div>`);
                 });
-                examiner.assigned = false;
-                examiner.assignedRoom = null;
-            }
-            refreshAllUI();
-        }
-        
-        function getExaminerById(id) { return examiners.find(e => e.id === id); }
-        
-        function initExamTable(count) {
-            examRooms = []; examTableBody.innerHTML = '';
-            for (let i = 1; i <= count; i++) {
-                examRooms.push({ id: i, examiners: [null, null, null] });
-                const row = document.createElement('tr');
-                row.setAttribute('data-room-id', i);
-                row.setAttribute('ondragover', 'allowRowDrop(event)');
-                row.setAttribute('ondrop', 'dropRow(event)');
-                const roomCell = document.createElement('td'); roomCell.className = 'col-room'; roomCell.textContent = i; roomCell.setAttribute('draggable', 'true'); roomCell.setAttribute('ondragstart', 'dragRoomStart(event)'); row.appendChild(roomCell);
-                const countCell = document.createElement('td'); countCell.className = 'col-count'; countCell.innerHTML = subjectCounts[i] || '-'; countCell.setAttribute('draggable', 'true'); countCell.setAttribute('ondragstart', 'dragRoomStart(event)'); row.appendChild(countCell);
-                for (let j = 0; j < 3; j++) {
-                    const teacherCell = document.createElement('td'); teacherCell.className = 'col-teacher';
-                    const dz = document.createElement('div'); dz.className = 'teacher-drop-zone empty'; dz.setAttribute('ondrop', 'dropExaminer(event)'); dz.setAttribute('ondragover', 'allowDrop(event)'); dz.setAttribute('data-room-id', i); dz.setAttribute('data-slot-index', j); dz.textContent = '拖拽考官到此'; teacherCell.appendChild(dz); row.appendChild(teacherCell);
-                    const subjectCell = document.createElement('td'); subjectCell.className = 'col-subject'; subjectCell.textContent = '-'; row.appendChild(subjectCell);
-                }
-                examTableBody.appendChild(row);
-            }
-            currentRoomCount = count;
-        }
-        
-        function updateExamTable() {
-            examRooms.forEach(room => {
-                const row = document.querySelector(`tr[data-room-id="${room.id}"]`);
-                if (!row) return;
-                row.cells[1].innerHTML = subjectCounts[room.id] || '-';
-                for (let i = 0; i < 3; i++) {
-                    const examinerId = room.examiners[i];
-                    const dz = row.cells[2 + i * 2].querySelector('.teacher-drop-zone');
-                    const subjectCell = row.cells[3 + i * 2];
-                    if (examinerId) {
-                        const examiner = getExaminerById(examinerId);
-                        dz.className = 'teacher-drop-zone filled'; dz.setAttribute('draggable', 'true'); dz.setAttribute('ondragstart', 'dragExaminerStart(event)'); dz.setAttribute('data-examiner-id', examinerId);
-                        dz.innerHTML = `<div class="teacher-info"><div class="teacher-name">${examiner.name}</div><div class="teacher-school">${examiner.school}</div></div><button class="teacher-delete-btn" onclick="deleteExaminerFromCell(event, this)">×</button>`;
-                        subjectCell.textContent = examiner.subject;
-                    } else {
-                        dz.className = 'teacher-drop-zone empty'; dz.removeAttribute('draggable'); dz.removeAttribute('data-examiner-id'); dz.innerHTML = '拖拽考官到此'; subjectCell.textContent = '-';
-                    }
-                }
             });
-            markDataModified();
+            
+            if (!hasVisibleContent) $library.html('<div class="empty-message">没有符合条件的学科</div>');
+            setTimeout(initDragAndDrop, 100);
         }
         
-        function deleteExaminerFromCell(event, btn) {
-            event.stopPropagation();
-            const id = parseInt(btn.getAttribute('data-examiner-id'));
-            if (!id) return;
-            if (confirm('确定要删除此考官吗？')) {
-                examRooms.forEach(room => { const idx = room.examiners.indexOf(id); if (idx !== -1) room.examiners[idx] = null; });
-                const examiner = getExaminerById(id);
-                if (examiner) { examiner.assigned = false; examiner.assignedRoom = null; }
-                refreshAllUI();
+        function initDragAndDrop() {
+            $('.library-item').draggable({
+                helper: 'clone',
+                revert: 'invalid',
+                cursor: 'move',
+                zIndex: 10000,
+                start: function() { $(this).css('opacity', '0.4'); $('.subject-drop').addClass('highlight-drop'); },
+                stop: function() { $(this).css('opacity', '1'); $('.subject-drop').removeClass('highlight-drop'); }
+            });
+            $('.subject-drop').droppable({
+                accept: '.library-item',
+                tolerance: 'pointer',
+                hoverClass: 'ui-state-hover',
+                drop: function(event, ui) { dropSubject(ui.draggable.data('name'), $(this)); }
+            });
+        }
+        
+        function dropSubject(subjectName, $target) {
+            if ($target.hasClass('subject-dropped')) {
+                const oldSubject = $target.text().trim();
+                if (oldSubject === subjectName) return;
+                removeSubjectFromCell($target, oldSubject, false);
+            }
+            $target.text(subjectName).addClass('subject-dropped');
+            if ($target.find('.remove-subject').length === 0) $target.append('<div class="remove-subject">×</div>');
+            const roomId = $target.data('room'), period = $target.data('period'), groupIndex = $target.data('group');
+            if (roomId && period && groupIndex !== undefined) examRooms[roomId - 1][period][groupIndex].subject = subjectName;
+            recalculateAllSubjects();
+            renderSubjectList();
+            updateRowTotal($target.closest('tr'));
+            updateGlobalStats(); // 新增
+        }
+        
+        function generateExamRooms() {
+            const $tbody = $('#table-body').empty();
+            maxRooms = parseInt($('#max-room').val()) || 60;
+            if (maxRooms < 1) { showError('请输入有效的考场号'); return false; }
+            examRooms = [];
+            for (let i = 1; i <= maxRooms; i++) {
+                examRooms.push({
+                    id: i,
+                    day1am: Array(4).fill().map(() => ({ subject: '', count: 0 })),
+                    day1pm: Array(4).fill().map(() => ({ subject: '', count: 0 })),
+                    day2am: Array(4).fill().map(() => ({ subject: '', count: 0 })),
+                    day2pm: Array(4).fill().map(() => ({ subject: '', count: 0 }))
+                });
+                const room = examRooms[i-1];
+                $tbody.append(`
+                    <tr data-room-id="${i}">
+                        <td class="row-handle">≡</td>
+                        <td>${i}</td>
+                        ${generateGroupCells(room.day1am, 'day1am', i)}
+                        <td class="total-cell day1am-total">${calculatePeriodTotal(room.day1am)}</td>
+                        ${generateGroupCells(room.day1pm, 'day1pm', i)}
+                        <td class="total-cell day1pm-total">${calculatePeriodTotal(room.day1pm)}</td>
+                        ${generateGroupCells(room.day2am, 'day2am', i)}
+                        <td class="total-cell day2am-total">${calculatePeriodTotal(room.day2am)}</td>
+                        ${generateGroupCells(room.day2pm, 'day2pm', i)}
+                        <td class="total-cell day2pm-total">${calculatePeriodTotal(room.day2pm)}</td>
+                    </tr>
+                `);
+            }
+            $('#arrangement-stats').text(`共 ${maxRooms} 个考场`);
+            setTimeout(initDragAndDrop, 100);
+            $('#table-body').sortable({
+                handle: '.row-handle',
+                axis: 'y',
+                opacity: 0.7,
+                helper: function(e, tr) {
+                    const $originals = tr.children(), $helper = tr.clone();
+                    $helper.children().each(function(index) { $(this).width($originals.eq(index).width()); });
+                    return $helper;
+                },
+                update: updateRoomNumbers
+            }).disableSelection();
+            isDataLoaded = true;
+            updateGlobalStats(); // 新增
+            return true;
+        }
+        
+        function generateGroupCells(groups, period, roomId) {
+            let html = '';
+            groups.forEach((group, index) => {
+                const hasSubject = group.subject && group.subject.trim() !== '';
+                html += `
+                    <td><div class="subject-drop ${hasSubject ? 'subject-dropped' : ''}" data-room="${roomId}" data-period="${period}" data-group="${index}">${group.subject || ''}${hasSubject ? '<div class="remove-subject">×</div>' : ''}</div></td>
+                    <td><input type="number" class="count-input" data-room="${roomId}" data-period="${period}" data-group="${index}" value="${group.count || ''}" min="0" step="1"></td>
+                `;
+            });
+            return html;
+        }
+        
+        function bindEvents() {
+            $('#import-subjects').click(function() {
+                const inputText = $('#subject-input').val().trim();
+                if (!inputText) { showError('请输入学科数据'); return; }
+                const lines = inputText.split('\n');
+                const newSubjects = [];
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine) continue;
+                    const parts = trimmedLine.split(/\s+/);
+                    if (parts.length < 2) { showError(`格式错误: "${line}"，应为"学科 人数"格式`); return; }
+                    const name = parts[0], count = parseInt(parts[1]);
+                    if (isNaN(count) || count <= 0) { showError(`人数格式错误: "${parts[1]}"`); return; }
+                    newSubjects.push({ name: name, count: count, arranged: 0, category: detectSubjectCategory(name) });
+                }
+                subjects = newSubjects;
+                renderSubjectList();
+                renderSubjectLibrary();
+                clearError();
+                showSuccess(`成功导入 ${subjects.length} 个学科`);
+                $('.subject-drop').text('').removeClass('subject-dropped');
+                $('.subject-drop .remove-subject').remove();
+                $('.count-input').val('');
+                $('.total-cell').text('0');
+                setTimeout(initDragAndDrop, 100);
+                updateGlobalStats(); // 新增
+            });
+            
+            $('#generate-rooms').click(function() {
+                if (subjects.length === 0) { showError('请先导入学科数据'); return; }
+                if (generateExamRooms()) showSuccess(`成功生成 ${maxRooms} 个考场`);
+            });
+            
+            $(document).on('input', '.count-input', function() {
+                if (!isDataLoaded) return;
+                const $input = $(this), count = parseInt($input.val()) || 0;
+                const room = examRooms[$input.data('room') - 1];
+                if (room && room[$input.data('period')]) room[$input.data('period')][$input.data('group')].count = count;
+                recalculateAllSubjects();
+                renderSubjectList();
+                renderSubjectLibrary(); // 确保右侧同步
+                updateRowTotal($input.closest('tr'));
+                updateGlobalStats(); // 新增
+            });
+            
+            $(document).on('click', '.remove-subject', function(e) {
+                e.stopPropagation();
+                const $subjectCell = $(this).closest('.subject-drop');
+                const subjectName = $subjectCell.text().trim();
+                removeSubjectFromCell($subjectCell, subjectName, true);
+                updateGlobalStats(); // 新增
+            });
+            
+            $('#save-data').click(saveData);
+            $('#export-data').click(exportToExcel);
+            $('#center-quick-fill').click(function() {
+                if (!isDataLoaded) { showError('请先生成考场表格'); return; }
+                if (subjects.length === 0) { showError('请先导入学科数据'); return; }
+                quickFillSubjects();
+            });
+            
+            $('#restore-file').change(function() {
+                const file = this.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const savedData = JSON.parse(e.target.result);
+                        if (!savedData.subjects || !savedData.examRooms) { showError('文件格式不正确'); return; }
+                        restoreData(savedData);
+                        showSuccess(`数据已恢复，保存时间：${savedData.saveTime || '未知'}`);
+                    } catch (error) { showError('解析JSON失败: ' + error.message); }
+                };
+                reader.readAsText(file);
+            });
+            
+            $('#left-filter-select').change(function() {
+                activeLeftFilter = $(this).val();
+                renderSubjectList();
+            });
+            
+            $('#right-filter-select').change(function() {
+                activeRightFilter = $(this).val();
+                renderSubjectLibrary();
+            });
+
+            // 新增：右侧已编排完复选框事件
+            $('#right-filter-arranged-done').change(function() {
+                renderSubjectLibrary();
+            });
+            
+            // 新增：右侧搜索框输入事件
+            $('#right-search-input').on('input', function() {
+                renderSubjectLibrary();
+            });
+            
+            $('#max-room').on('change', function() {
+                let v = parseInt($(this).val());
+                if (v < 1) $(this).val(1);
+                if (v > 200) $(this).val(200);
+            });
+        }
+        
+        function quickFillSubjects() {
+            const highCountSubjects = subjects.filter(s => s.count >= 50 && s.arranged < s.count);
+            if (highCountSubjects.length === 0) { showError('没有找到需要快速填充的学科（要求：人数≥50人且未编排完）'); return; }
+            const sortedSubjects = [...highCountSubjects].sort((a, b) => b.count - a.count);
+            let filledRooms = 0, currentSubjectNameIndex = 0;
+            const subjectNames = [...new Set(sortedSubjects.map(s => s.name))];
+            for (let roomIndex = 0; roomIndex < examRooms.length && currentSubjectNameIndex < subjectNames.length; roomIndex++) {
+                const room = examRooms[roomIndex];
+                let isEmptyRoom = true;
+                ['day1am', 'day1pm', 'day2am', 'day2pm'].forEach(p => room[p].forEach(g => { if (g.subject) isEmptyRoom = false; }));
+                if (!isEmptyRoom) continue;
+                const currentSubjectName = subjectNames[currentSubjectNameIndex];
+                const sameNameSubjects = subjects.filter(s => s.name === currentSubjectName && s.arranged < s.count);
+                let remainingCount = sameNameSubjects.reduce((sum, s) => sum + (s.count - s.arranged), 0);
+                if (remainingCount <= 0) { currentSubjectNameIndex++; continue; }
+                const fillAmount = Math.min(remainingCount, 50);
+                const timeSlots = [
+                    { period: 'day1am', count: Math.min(fillAmount, 12) },
+                    { period: 'day1pm', count: Math.min(fillAmount - 12, 13) },
+                    { period: 'day2am', count: Math.min(fillAmount - 25, 12) },
+                    { period: 'day2pm', count: Math.min(fillAmount - 37, 13) }
+                ];
+                timeSlots.forEach(slot => {
+                    if (slot.count <= 0) return;
+                    let remaining = slot.count;
+                    const categoriesOrder = ['high', 'junior', 'primary', 'preschool', 'vocational'];
+                    const assigned = [];
+                    for (const cat of categoriesOrder) {
+                        if (remaining <= 0) break;
+                        const sub = sameNameSubjects.find(s => s.category === cat && s.arranged < s.count);
+                        if (sub) {
+                            const take = Math.min(remaining, sub.count - sub.arranged);
+                            if (take > 0) { assigned.push({ subject: sub, count: take }); sub.arranged += take; remaining -= take; }
+                        }
+                    }
+                    if (assigned.length > 0) {
+                        const displayName = assigned.length === 1 ? assigned[0].subject.name : `${assigned[0].subject.name}(${assigned.map(a => a.subject.category).join(',')})`;
+                        const totalCount = assigned.reduce((sum, a) => sum + a.count, 0);
+                        room[slot.period][0].subject = displayName;
+                        room[slot.period][0].count = totalCount;
+                        const $cell = $(`.subject-drop[data-room="${roomIndex + 1}"][data-period="${slot.period}"][data-group="0"]`);
+                        $cell.text(displayName).addClass('subject-dropped');
+                        if ($cell.find('.remove-subject').length === 0) $cell.append('<div class="remove-subject">×</div>');
+                        $(`.count-input[data-room="${roomIndex + 1}"][data-period="${slot.period}"][data-group="0"]`).val(totalCount);
+                    }
+                    for (let i = 1; i < 4; i++) {
+                        room[slot.period][i].subject = '';
+                        room[slot.period][i].count = 0;
+                        $(`.subject-drop[data-room="${roomIndex + 1}"][data-period="${slot.period}"][data-group="${i}"]`).text('').removeClass('subject-dropped').find('.remove-subject').remove();
+                        $(`.count-input[data-room="${roomIndex + 1}"][data-period="${slot.period}"][data-group="${i}"]`).val('');
+                    }
+                });
+                filledRooms++;
+                updateRowTotal($(`tr[data-room-id="${roomIndex + 1}"]`));
+                if (sameNameSubjects.every(s => s.arranged >= s.count)) currentSubjectNameIndex++;
+            }
+            recalculateAllSubjects();
+            renderSubjectList();
+            renderSubjectLibrary();
+            updateGlobalStats(); // 新增
+            if (filledRooms > 0) showSuccess(`快速填充完成！共填充了 ${filledRooms} 个考场`);
+            else showError('没有找到可以填充的空考场');
+        }
+        
+        function restoreData(savedData) {
+            subjects = savedData.subjects || [];
+            maxRooms = savedData.maxRoom || 60;
+            $('#max-room').val(maxRooms);
+            if (savedData.examRooms && savedData.examRooms.length > 0) {
+                generateExamRoomsFromData(savedData);
+            } else {
+                isDataLoaded = false;
+            }
+            renderSubjectList();
+            renderSubjectLibrary();
+            recalculateAllSubjects();
+            updateGlobalStats(); // 新增
+        }
+        
+        function generateExamRoomsFromData(savedData) {
+            const $tbody = $('#table-body').empty();
+            examRooms = savedData.examRooms || [];
+            examRooms.forEach((room, i) => {
+                $tbody.append(`
+                    <tr data-room-id="${i + 1}">
+                        <td class="row-handle">≡</td>
+                        <td>${i + 1}</td>
+                        ${generateGroupCellsFromData(room.day1am, 'day1am', i + 1)}
+                        <td class="total-cell day1am-total">${calculatePeriodTotal(room.day1am)}</td>
+                        ${generateGroupCellsFromData(room.day1pm, 'day1pm', i + 1)}
+                        <td class="total-cell day1pm-total">${calculatePeriodTotal(room.day1pm)}</td>
+                        ${generateGroupCellsFromData(room.day2am, 'day2am', i + 1)}
+                        <td class="total-cell day2am-total">${calculatePeriodTotal(room.day2am)}</td>
+                        ${generateGroupCellsFromData(room.day2pm, 'day2pm', i + 1)}
+                        <td class="total-cell day2pm-total">${calculatePeriodTotal(room.day2pm)}</td>
+                    </tr>
+                `);
+            });
+            $('#arrangement-stats').text(`共 ${examRooms.length} 个考场`);
+            setTimeout(initDragAndDrop, 100);
+            $('#table-body').sortable({
+                handle: '.row-handle',
+                axis: 'y',
+                opacity: 0.7,
+                helper: function(e, tr) {
+                    const $originals = tr.children(), $helper = tr.clone();
+                    $helper.children().each(function(index) { $(this).width($originals.eq(index).width()); });
+                    return $helper;
+                },
+                update: updateRoomNumbers
+            }).disableSelection();
+            isDataLoaded = true;
+            updateGlobalStats(); // 新增
+        }
+        
+        function generateGroupCellsFromData(groups, period, roomId) {
+            let html = '';
+            groups.forEach((group, index) => {
+                const hasSubject = group.subject && group.subject.trim() !== '';
+                html += `
+                    <td><div class="subject-drop ${hasSubject ? 'subject-dropped' : ''}" data-room="${roomId}" data-period="${period}" data-group="${index}">${group.subject || ''}${hasSubject ? '<div class="remove-subject">×</div>' : ''}</div></td>
+                    <td><input type="number" class="count-input" data-room="${roomId}" data-period="${period}" data-group="${index}" value="${group.count || ''}" min="0" step="1"></td>
+                `;
+            });
+            return html;
+        }
+        
+        function removeSubjectFromCell($subjectCell, subjectName, updateRender = true) {
+            // 1. 清空学科显示
+            $subjectCell.text('').removeClass('subject-dropped');
+            $subjectCell.find('.remove-subject').remove();
+
+            // 2. 取数据坐标
+            const roomId = $subjectCell.data('room');
+            const period = $subjectCell.data('period');
+            const groupIndex = $subjectCell.data('group');
+
+            if (roomId && period && groupIndex !== undefined) {
+                const room = examRooms[roomId - 1];
+
+                if (room && room[period]) {
+                    // ✅ 清空数据模型
+                    room[period][groupIndex].subject = '';
+                    room[period][groupIndex].count = '';
+                }
+
+                // ✅ 直接通过 data-* 定位输入框（最稳）
+                const $input = $(`.count-input[data-room="${roomId}"][data-period="${period}"][data-group="${groupIndex}"]`);
+                if ($input.length > 0) {
+                    $input.val(0);
+                }
+            }
+
+            // 3. 重新计算 & 渲染
+            recalculateAllSubjects();
+
+            if (updateRender) {
+                renderSubjectList();
+                renderSubjectLibrary();   // ✅ 右侧同步
+                updateRowTotal($subjectCell.closest('tr'));
+                updateGlobalStats(); // 新增
             }
         }
         
-        function clearAllAssignments() {
-            if (!confirm('确定要清空所有考场的编排吗？此操作不可撤销。')) return;
-            examRooms.forEach(room => room.examiners.fill(null));
-            examiners.forEach(e => { e.assigned = false; e.assignedRoom = null; });
-            refreshAllUI();
+        function updateRowTotal($row) {
+            const roomId = $row.data('room-id'), room = examRooms[roomId - 1];
+            if (!room) return;
+            $row.find('.day1am-total').text(calculatePeriodTotal(room.day1am));
+            $row.find('.day1pm-total').text(calculatePeriodTotal(room.day1pm));
+            $row.find('.day2am-total').text(calculatePeriodTotal(room.day2am));
+            $row.find('.day2pm-total').text(calculatePeriodTotal(room.day2pm));
         }
         
-        function clearExaminers() {
-            if (examiners.length === 0) return alert('考官信息库已为空！');
-            if (!confirm('确定要清空所有考官信息吗？')) return;
-            examiners = []; nextExaminerId = 1;
-            examRooms.forEach(room => room.examiners.fill(null));
-            refreshAllUI();
-            alert('考官信息库已清空！');
+        function calculatePeriodTotal(groups) {
+            let total = 0;
+            groups.forEach(group => { if (group.subject && group.subject.trim() !== '') total += parseInt(group.count) || 0; });
+            return total;
         }
         
-        function clearSubjectCounts() {
-            if (Object.keys(subjectCounts).length === 0) return alert('学科人数已为空！');
-            if (!confirm('确定要清空学科人数吗？')) return;
-            subjectCounts = {};
-            updateExamTable();
-            alert('学科人数已清空！');
+        function updateRoomNumbers() {
+            $('#table-body tr').each(function(index) {
+                const roomNumber = index + 1;
+                $(this).find('td').eq(1).text(roomNumber);
+                $(this).data('room-id', roomNumber);
+                $(this).find('.subject-drop, .count-input').each(function() { $(this).data('room', roomNumber); });
+            });
         }
         
-        function backupData() {
-            const data = { examiners, examRooms, subjectCounts, backupTime: new Date().toLocaleString('zh-CN') };
-            lastBackupData = data;
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `考官编排备份_${new Date().toISOString().split('T')[0]}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            alert('数据备份成功！');
+        function saveData() {
+            if (subjects.length === 0 && examRooms.length === 0) { showError('没有数据可保存'); return; }
+            const saveData = { maxRoom: maxRooms, subjects: subjects, examRooms: examRooms, saveTime: new Date().toLocaleString(), isDataLoaded: isDataLoaded };
+            const dataStr = JSON.stringify(saveData, null, 2), dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', `考场编排保存_${new Date().getTime()}.json`);
+            link.click();
+            showSuccess(`数据已保存，共${subjects.length}个学科，${examRooms.length}个考场`);
         }
         
-        function restoreBackupData() {
-            if (!lastBackupData) { if (confirm('没有找到内存备份，是否从文件还原？')) fileInputRestore.click(); return; }
-            if (confirm('确定要还原备份吗？当前修改将丢失。')) { restoreDataFromObject(lastBackupData); alert('还原成功！'); }
+        function exportToExcel() {
+            if (!isDataLoaded || examRooms.length === 0) { showError('请先生成考场表格'); return; }
+            try {
+                const wb = XLSX.utils.book_new();
+                wb.Props = { Title: "考场编排表", Subject: "考场编排数据", Author: "考场编排系统", CreatedDate: new Date() };
+                const data = [];
+                data.push(['考场编排表']);
+                data.push(['拖动', '考场号', '第一天上午', '', '', '', '', '', '', '小计', '第一天下午', '', '', '', '', '', '', '小计', '第二天上午', '', '', '', '', '', '', '小计', '第二天下午', '', '', '', '', '', '', '', '小计']);
+                data.push(['', 'A', '第1组', '', '第2组', '', '第3组', '', '第4组', '', 'J', '第1组', '', '第2组', '', '第3组', '', '第4组', '', 'S', '第1组', '', '第2组', '', '第3组', '', '第4组', '', 'AD', '第1组', '', '第2组', '', '第3组', '', '第4组', '', 'AI']);
+                data.push(['', '考场号', '学科', '人数', '学科', '人数', '学科', '人数', '学科', '人数', '小计', '学科', '人数', '学科', '人数', '学科', '人数', '学科', '人数', '小计', '学科', '人数', '学科', '人数', '学科', '人数', '学科', '人数', '小计', '学科', '人数', '学科', '人数', '学科', '人数', '学科', '人数', '小计']);
+                examRooms.forEach((room, index) => {
+                    const row = ['', index + 1];
+                    const addPeriod = (period) => {
+                        period.forEach(g => { row.push(g.subject || ''); row.push(g.count || 0); });
+                        row.push(calculatePeriodTotal(period));
+                    };
+                    addPeriod(room.day1am);
+                    addPeriod(room.day1pm);
+                    addPeriod(room.day2am);
+                    addPeriod(room.day2pm);
+                    data.push(row);
+                });
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                ws['!cols'] = [{wch:5},{wch:8},{wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},{wch:6}];
+                ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:38}},{s:{r:1,c:2},e:{r:1,c:9}},{s:{r:1,c:10},e:{r:1,c:17}},{s:{r:1,c:18},e:{r:1,c:25}},{s:{r:1,c:26},e:{r:1,c:33}}];
+                XLSX.utils.book_append_sheet(wb, ws, "考场编排表");
+                const wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
+                function s2ab(s) { const buf=new ArrayBuffer(s.length); const view=new Uint8Array(buf); for(let i=0;i<s.length;i++)view[i]=s.charCodeAt(i)&0xFF; return buf; }
+                const blob = new Blob([s2ab(wbout)], {type: "application/octet-stream"});
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `考场编排表_${new Date().getTime()}.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showSuccess(`Excel文件已导出，共${examRooms.length}个考场`);
+            } catch (error) { showError('导出Excel失败: ' + error.message); }
         }
         
-        function restoreBackupFromFile(file) {
-            const reader = new FileReader(); reader.onload = e => { try { restoreDataFromObject(JSON.parse(e.target.result)); alert('文件还原成功！'); } catch { alert('文件格式错误'); } }; reader.readAsText(file);
+        // ================= 新增：全局统计函数 =================
+        function updateGlobalStats() {
+            if (!isDataLoaded || examRooms.length === 0) {
+                $('#stat-total-count').text(0);
+                $('#stat-total-remain').text(0);
+                $('#stat-day1am-arranged').text(0);
+                $('#stat-day1pm-arranged').text(0);
+                $('#stat-day2am-arranged').text(0);
+                $('#stat-day2pm-arranged').text(0);
+                return;
+            }
+
+            // 1. 计算总人数（所有学科）
+            const totalCount = subjects.reduce((sum, s) => sum + s.count, 0);
+            $('#stat-total-count').text(totalCount);
+
+            // 2. 计算每个半天的已编人数
+            const periodKeys = ['day1am', 'day1pm', 'day2am', 'day2pm'];
+            let arrangedSumAllPeriods = 0;
+
+            periodKeys.forEach(period => {
+                let arranged = 0;
+                examRooms.forEach(room => {
+                    room[period].forEach(group => {
+                        if (group.subject && group.subject.trim() !== '') {
+                            arranged += parseInt(group.count) || 0;
+                        }
+                    });
+                });
+                $(`#stat-${period}-arranged`).text(arranged);
+                arrangedSumAllPeriods += arranged;
+            });
+
+            // 3. 计算剩余人数
+            const remain = totalCount - arrangedSumAllPeriods;
+            $('#stat-total-remain').text(remain >= 0 ? remain : 0);
         }
         
-        function restoreDataFromObject(data) {
-            examiners = data.examiners || []; examRooms = data.examRooms || []; subjectCounts = data.subjectCounts || {};
-            if (examiners.length) nextExaminerId = Math.max(...examiners.map(e => e.id)) + 1;
-            refreshAllUI();
-            if (examRooms.length) { currentRoomCount = examRooms.length; roomCountInput.value = currentRoomCount; rebuildExamTable(); } else { initExamTable(currentRoomCount); }
-            isDataModified = false;
-        }
-        
-        function dragExaminerStart(event) {
-            const t = event.target.classList.contains('teacher-drop-zone') ? event.target : event.target.closest('.teacher-drop-zone, .examiner-item');
-            if (!t) return;
-            const id = t.getAttribute('data-id') || t.getAttribute('data-examiner-id');
-            if (!id) return;
-            const examiner = getExaminerById(+id);
-            if (examiner?.disabled) { event.preventDefault(); return; }
-            event.dataTransfer.setData('examinerId', id); event.dataTransfer.setData('dragType', 'examiner');
-            if (t.classList.contains('teacher-drop-zone')) { event.dataTransfer.setData('sourceRoomId', t.getAttribute('data-room-id')); event.dataTransfer.setData('sourceSlotIndex', t.getAttribute('data-slot-index')); }
-            t.classList.add('dragging');
-        }
-        
-        function dragRoomStart(event) {
-            const cell = event.target;
-            if (!cell.classList.contains('col-room') && !cell.classList.contains('col-count')) return;
-            const row = cell.closest('tr');
-            if (row) { event.dataTransfer.setData('roomId', row.getAttribute('data-room-id')); event.dataTransfer.setData('dragType', 'room'); row.style.opacity = '0.5'; }
-        }
-        
-        function allowDrop(event) { event.preventDefault(); const dz = event.target.closest('.teacher-drop-zone'); if (dz) dz.classList.add('drop-zone-hover'); }
-        function allowRowDrop(event) { event.preventDefault(); if (event.dataTransfer.getData('dragType') === 'room') { const row = event.target.closest('tr'); if (row) row.classList.add('row-drop-zone-hover'); } }
-        function removeHoverEffects() { document.querySelectorAll('.drop-zone-hover').forEach(e => e.classList.remove('drop-zone-hover')); document.querySelectorAll('.row-drop-zone-hover').forEach(e => e.classList.remove('row-drop-zone-hover')); document.querySelectorAll('#exam-table-body tr').forEach(r => r.style.opacity = ''); document.querySelectorAll('.dragging').forEach(e => e.classList.remove('dragging')); }
-        
-        function dropExaminer(event) {
-            event.preventDefault(); removeHoverEffects();
-            const dz = event.target.closest('.teacher-drop-zone'); if (!dz) return;
-            const examinerId = +event.dataTransfer.getData('examinerId'); const dragType = event.dataTransfer.getData('dragType');
-            if (dragType !== 'examiner' || !examinerId) return;
-            const targetRoomId = +dz.getAttribute('data-room-id'); const targetSlot = +dz.getAttribute('data-slot-index');
-            const examiner = getExaminerById(examinerId); if (!examiner || examiner.disabled) return;
-            const targetRoom = examRooms.find(r => r.id === targetRoomId); if (!targetRoom) return;
-            const srcRoomId = +event.dataTransfer.getData('sourceRoomId'); const srcSlot = +event.dataTransfer.getData('sourceSlotIndex');
-            if (isNaN(srcRoomId)) { examRooms.forEach(r => { const idx = r.examiners.indexOf(examinerId); if (idx !== -1) r.examiners[idx] = null; }); }
-            else { const srcRoom = examRooms.find(r => r.id === srcRoomId); if (srcRoom) { const otherId = targetRoom.examiners[targetSlot]; srcRoom.examiners[srcSlot] = otherId; if (otherId) { const other = getExaminerById(otherId); if (other) other.assignedRoom = srcRoomId; } } }
-            targetRoom.examiners[targetSlot] = examinerId; examiner.assigned = true; examiner.assignedRoom = targetRoomId;
-            refreshAllUI();
-        }
-        
-        function dropRow(event) {
-            event.preventDefault(); removeHoverEffects();
-            const targetRow = event.target.closest('tr'); if (!targetRow || event.dataTransfer.getData('dragType') !== 'room') return;
-            const srcId = +event.dataTransfer.getData('roomId'); const tgtId = +targetRow.getAttribute('data-room-id'); if (!srcId || srcId === tgtId) return;
-            const srcIdx = examRooms.findIndex(r => r.id === srcId); const tgtIdx = examRooms.findIndex(r => r.id === tgtId); if (srcIdx === -1 || tgtIdx === -1) return;
-            [examRooms[srcIdx], examRooms[tgtIdx]] = [examRooms[tgtIdx], examRooms[srcIdx]];
-            [subjectCounts[srcId], subjectCounts[tgtId]] = [subjectCounts[tgtId], subjectCounts[srcId]];
-            rebuildExamTable(); updateAllAssignedRoomNumbers(); markDataModified();
-        }
-        
-        function updateAllAssignedRoomNumbers() { examiners.forEach(e => e.assignedRoom = findExaminerRoom(e.id)); updateExaminerList(); }
-        function rebuildExamTable() { examRooms.sort((a, b) => a.id - b.id); examTableBody.innerHTML = ''; examRooms.forEach(room => { const row = document.createElement('tr'); row.setAttribute('data-room-id', room.id); row.setAttribute('ondragover', 'allowRowDrop(event)'); row.setAttribute('ondrop', 'dropRow(event)'); const roomCell = document.createElement('td'); roomCell.className = 'col-room'; roomCell.textContent = room.id; roomCell.setAttribute('draggable', 'true'); roomCell.setAttribute('ondragstart', 'dragRoomStart(event)'); row.appendChild(roomCell); const countCell = document.createElement('td'); countCell.className = 'col-count'; countCell.innerHTML = subjectCounts[room.id] || '-'; countCell.setAttribute('draggable', 'true'); countCell.setAttribute('ondragstart', 'dragRoomStart(event)'); row.appendChild(countCell); for (let j = 0; j < 3; j++) { const tc = document.createElement('td'); tc.className = 'col-teacher'; const dz = document.createElement('div'); dz.className = 'teacher-drop-zone empty'; dz.setAttribute('ondrop', 'dropExaminer(event)'); dz.setAttribute('ondragover', 'allowDrop(event)'); dz.setAttribute('data-room-id', room.id); dz.setAttribute('data-slot-index', j); dz.textContent = '拖拽考官到此'; tc.appendChild(dz); row.appendChild(tc); const sc = document.createElement('td'); sc.className = 'col-subject'; sc.textContent = '-'; row.appendChild(sc); } examTableBody.appendChild(row); }); updateExamTable(); }
-        function markDataModified() { isDataModified = true; if (autoSaveEnabled) { autoSaveDot.classList.remove('inactive'); autoSaveText.textContent = '数据已修改，自动保存中...'; clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(() => { saveToLocalStorage(); isDataModified = false; autoSaveText.textContent = '已自动保存'; setTimeout(() => autoSaveText.textContent = '自动保存已启用', 2000); }, 5000); } }
-        function saveToLocalStorage() { if (!autoSaveEnabled) return; try { localStorage.setItem('examinerArrangementData', JSON.stringify({ examiners, examRooms, subjectCounts, saveTime: new Date().toISOString() })); } catch {} }
-        function loadFromLocalStorage() { try { const d = JSON.parse(localStorage.getItem('examinerArrangementData')); if (d) { restoreDataFromObject(d); return true; } } catch {} return false; }
-        
-        function showExportPreview() {
-            if (!examiners.length) return alert('请先导入考官数据！');
-            let html = `<h4>预览格式：CSV</h4><div style="overflow:auto;max-height:400px;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f2f2f2;"><th style="border:1px solid #ddd;padding:5px;">考场号</th><th style="border:1px solid #ddd;padding:5px;">学科人数</th><th style="border:1px solid #ddd;padding:5px;">教师姓名1</th><th style="border:1px solid #ddd;padding:5px;">学科1</th><th style="border:1px solid #ddd;padding:5px;">教师姓名2</th><th style="border:1px solid #ddd;padding:5px;">学科2</th><th style="border:1px solid #ddd;padding:5px;">教师姓名3</th><th style="border:1px solid #ddd;padding:5px;">学科3</th></tr></thead><tbody>`;
-            examRooms.forEach(room => { html += `<tr><td style="border:1px solid #ddd;padding:5px;">${room.id}</td><td style="border:1px solid #ddd;padding:5px;">${subjectCounts[room.id]?.replace(/<br>/g,' ') || '-'}</td>`; for (let i = 0; i < 3; i++) { const e = getExaminerById(room.examiners[i]); html += `<td style="border:1px solid #ddd;padding:5px;">${e ? e.name : '-'}</td><td style="border:1px solid #ddd;padding:5px;">${e ? e.subject : '-'}</td>`; } html += '</tr>'; });
-            html += '</tbody></table></div>'; previewContent.innerHTML = html; previewModal.style.display = 'flex';
-        }
-        
-        function exportToCSV() { if (!examiners.length) return alert('请先导入考官数据！'); let csv = '\uFEFF考场号,学科人数,教师姓名1,学科1,教师姓名2,学科2,教师姓名3,学科3\n'; examRooms.forEach(room => { const row = [room.id, subjectCounts[room.id]?.replace(/<br>/g,' ') || '-']; for (let i = 0; i < 3; i++) { const e = getExaminerById(room.examiners[i]); row.push(e ? `"${e.name}"` : '-'); row.push(e ? `"${e.subject}"` : '-'); } csv += row.join(',') + '\n'; }); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = `考官编排表_${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(a); a.click(); document.body.removeChild(a); alert('导出成功！'); }
-        function exportToXLSX() { exportToCSV(); alert('XLSX 暂用 CSV 替代，如需 XLSX 可集成 SheetJS。'); }
-        function exportToTXT() { if (!examiners.length) return alert('请先导入考官数据！'); let txt = '考场号\t学科人数\t教师姓名1\t学科1\t教师姓名2\t学科2\t教师姓名3\t学科3\n'; examRooms.forEach(room => { const row = [room.id, subjectCounts[room.id]?.replace(/<br>/g,' ') || '-']; for (let i = 0; i < 3; i++) { const e = getExaminerById(room.examiners[i]); row.push(e ? e.name : '-'); row.push(e ? e.subject : '-'); } txt += row.join('\t') + '\n'; }); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' })); a.download = `考官编排表_${new Date().toISOString().split('T')[0]}.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a); alert('导出成功！'); }
-        
-        function handleExaminerFileImport(file) { const reader = new FileReader(); reader.onload = e => { const newExaminers = parseExaminerFile(e.target.result); if (newExaminers.length) { examiners = newExaminers; nextExaminerId = examiners.length + 1; examRooms.forEach(r => r.examiners.fill(null)); refreshAllUI(); alert(`成功导入 ${examiners.length} 位考官！`); } else { alert('未能解析考官文件，请检查格式。'); } }; reader.readAsText(file, 'UTF-8'); }
-        function handleSubjectCountsFileImport(file) { const reader = new FileReader(); reader.onload = e => { const counts = parseSubjectCountsFile(e.target.result); if (Object.keys(counts).length) { subjectCounts = counts; const max = Math.max(...Object.keys(counts).map(Number)); if (currentRoomCount < max && confirm(`检测到 ${max} 个考场，是否更新？`)) { roomCountInput.value = max; initExamTable(max); } updateExamTable(); alert('学科人数导入成功！'); } else { alert('未能解析学科人数文件。'); } }; reader.readAsText(file, 'UTF-8'); }
-        
-        // ===== 事件绑定 =====
-        importExaminersBtn.onclick = () => fileInputExaminers.click(); importSubjectCountsBtn.onclick = () => fileInputSubjectCounts.click();
-        fileInputExaminers.onchange = e => { if (e.target.files[0]) handleExaminerFileImport(e.target.files[0]); e.target.value = ''; };
-        fileInputSubjectCounts.onchange = e => { if (e.target.files[0]) handleSubjectCountsFileImport(e.target.files[0]); e.target.value = ''; };
-        fileInputRestore.onchange = e => { if (e.target.files[0]) restoreBackupFromFile(e.target.files[0]); e.target.value = ''; };
-        backupDataBtn.onclick = backupData; restoreDataBtn.onclick = restoreBackupData; clearExaminersBtn.onclick = clearExaminers; clearSubjectCountsBtn.onclick = clearSubjectCounts;
-        exportCsvBtn.onclick = exportToCSV; exportXlsxBtn.onclick = exportToXLSX; exportTxtBtn.onclick = exportToTXT; previewExportBtn.onclick = showExportPreview;
-        clearAllBtn.onclick = clearAllAssignments; closePreviewBtn.onclick = () => previewModal.style.display = 'none'; previewModal.onclick = e => { if (e.target === previewModal) previewModal.style.display = 'none'; };
-        updateRoomsBtn.onclick = () => { const c = +roomCountInput.value || 68; if (c < 1 || c > 100) return alert('考场数量需在 1–100 之间'); initExamTable(c); };
-        nameSearch.oninput = updateExaminerList; hideAssignedCheckbox.onchange = updateExaminerList; subjectKeywordSearch.oninput = updateExaminerList;
-        assignedExaminerSearch.oninput = performAssignedExaminerSearch;
-        document.addEventListener('dragover', e => { if (e.target.closest('.teacher-drop-zone')) allowDrop(e); if (e.target.closest('tr')) allowRowDrop(e); });
-        document.addEventListener('dragleave', removeHoverEffects); document.addEventListener('dragend', removeHoverEffects);
-        autoSaveStatus.onclick = () => { autoSaveEnabled = !autoSaveEnabled; autoSaveDot.classList.toggle('inactive', !autoSaveEnabled); autoSaveText.textContent = autoSaveEnabled ? '自动保存已启用' : '自动保存已禁用'; };
-        window.addEventListener('beforeunload', () => { if (isDataModified) saveToLocalStorage(); });
-        document.addEventListener('DOMContentLoaded', () => { if (!loadFromLocalStorage()) { initExamTable(currentRoomCount); } refreshAllUI(); });
+        function showError(message) { $('#import-error').text(message).show(); $('#import-success').hide(); setTimeout(() => $('#import-error').hide(), 3000); }
+        function showSuccess(message) { $('#import-success').text(message).show(); $('#import-error').hide(); setTimeout(() => $('#import-success').hide(), 3000); }
+        function clearError() { $('#import-error').hide(); }
     </script>
 </body>
 </html>

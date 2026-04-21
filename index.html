@@ -916,22 +916,24 @@
             <div class="panel-title">学科列表</div>
             
             <div class="filter-section">
-                <!-- 新增：已编排完筛选复选框 -->
-                <div class="filter-checkbox-container">
-                    <label>
-                        <input type="checkbox" id="right-filter-arranged-done"> 隐藏已编排完学科
-                    </label>
-                </div>
-                <select class="filter-dropdown" id="right-filter-select">
-                    <option value="all">全部学段</option>
-                    <option value="preschool">幼儿园</option>
-                    <option value="primary">小学</option>
-                    <option value="junior">初中</option>
-                    <option value="high">高中</option>
-                    <option value="vocational">中职</option>
-                </select>
-                <div class="filter-stats" id="right-filter-stats">共 0 个学科</div>
-            </div>
+    <!-- 新增：搜索框 -->
+    <input type="text" id="right-search-input" placeholder="搜索学科名称..." style="width:100%;padding:6px;margin-bottom:8px;border:1px solid #bdc3c7;border-radius:4px;font-size:12px;">
+    
+    <div class="filter-checkbox-container" style="margin-bottom:8px;">
+        <label>
+            <input type="checkbox" id="right-filter-arranged-done"> 隐藏已编排完学科
+        </label>
+    </div>
+    <select class="filter-dropdown" id="right-filter-select">
+        <option value="all">全部学科</option>
+        <option value="preschool">幼教学科</option>
+        <option value="primary">小学学科</option>
+        <option value="junior">初中学科</option>
+        <option value="high">高中学科</option>
+        <option value="vocational">中职学科</option>
+    </select>
+    <div class="filter-stats" id="right-filter-stats">共 0 个学科</div>
+</div>
             
             <div class="library-container" id="library-container">
                 <div class="empty-message">暂无学科数据</div>
@@ -1016,54 +1018,65 @@
         
         // ================= 修改：右侧学科库渲染逻辑 =================
         function renderSubjectLibrary() {
-            const $library = $('#library-container').empty();
-            if (subjects.length === 0) {
-                $library.html('<div class="empty-message">暂无学科数据</div>');
-                return;
-            }
-            let sortedSubjects = [...subjects].sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+    const $library = $('#library-container').empty();
+    
+    // 新增：获取搜索关键词
+    const searchKeyword = $('#right-search-input').val().toLowerCase().trim();
+    
+    if (subjects.length === 0) {
+        $library.html('<div class="empty-message">暂无学科数据</div>');
+        return;
+    }
+    
+    let sortedSubjects = [...subjects].sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+
+    // 1. 搜索过滤（新增）
+    if (searchKeyword) {
+        sortedSubjects = sortedSubjects.filter(s => s.name.toLowerCase().includes(searchKeyword));
+    }
+
+    // 2. 下拉分类过滤
+    if (activeRightFilter !== 'all') {
+        sortedSubjects = sortedSubjects.filter(s => s.category === activeRightFilter);
+    }
+    
+    // 3. 复选框过滤（隐藏已编排完）
+    if ($('#right-filter-arranged-done').is(':checked')) {
+        sortedSubjects = sortedSubjects.filter(s => s.arranged !== s.count);
+    }
+    
+    $('#right-filter-stats').text(`共 ${sortedSubjects.length} 个学科`);
+    if (sortedSubjects.length === 0) {
+        $library.html('<div class="empty-message">没有符合条件的学科</div>');
+        return;
+    }
+    
+    const subjectsByCategory = { preschool: [], primary: [], junior: [], high: [], vocational: [] };
+    sortedSubjects.forEach(subject => subjectsByCategory[subject.category].push(subject));
+    
+    const categories = [ { key: 'high', name: '高中' }, { key: 'junior', name: '初中' }, { key: 'primary', name: '小学' }, { key: 'preschool', name: '幼教' }, { key: 'vocational', name: '中职' }];
+    let hasVisibleContent = false;
+    
+    categories.forEach(category => {
+        const categorySubjects = subjectsByCategory[category.key];
+        if (categorySubjects.length === 0) return;
+        hasVisibleContent = true;
+        $library.append(`<div class="panel-title" style="font-size: 13px; margin: 10px 0 5px 0; color: #7f8c8d;">${category.name} (${categorySubjects.length})</div>`);
+        categorySubjects.forEach(subject => {
+            const diff = subject.arranged - subject.count;
+            let cardClass = 'library-item lib-arranged-negative';
+            if (diff === 0) cardClass = 'library-item lib-arranged-zero';
+            if (diff > 0) cardClass = 'library-item lib-arranged-positive';
             
-            // 新增：已编排完筛选逻辑
-           if ($('#right-filter-arranged-done').is(':checked')) {
-    sortedSubjects = sortedSubjects.filter(s => s.arranged !== s.count);
-} else {
-                if (activeRightFilter !== 'all') {
-                    sortedSubjects = sortedSubjects.filter(s => s.category === activeRightFilter);
-                }
-            }
-            
-            $('#right-filter-stats').text(`共 ${sortedSubjects.length} 个学科`);
-            if (sortedSubjects.length === 0) {
-                $library.html('<div class="empty-message">没有符合条件的学科</div>');
-                return;
-            }
-            
-            const subjectsByCategory = { preschool: [], primary: [], junior: [], high: [], vocational: [] };
-            sortedSubjects.forEach(subject => subjectsByCategory[subject.category].push(subject));
-            
-            const categories = [ { key: 'high', name: '高中' }, { key: 'junior', name: '初中' }, { key: 'primary', name: '小学' }, { key: 'preschool', name: '幼教' }, { key: 'vocational', name: '中职' }];
-            let hasVisibleContent = false;
-            
-            categories.forEach(category => {
-                const categorySubjects = subjectsByCategory[category.key];
-                if (categorySubjects.length === 0) return;
-                hasVisibleContent = true;
-                $library.append(`<div class="panel-title" style="font-size: 13px; margin: 10px 0 5px 0; color: #7f8c8d;">${category.name} (${categorySubjects.length})</div>`);
-                categorySubjects.forEach(subject => {
-                    const diff = subject.arranged - subject.count;
-                    let cardClass = 'library-item lib-arranged-negative';
-                    if (diff === 0) cardClass = 'library-item lib-arranged-zero';
-                    if (diff > 0) cardClass = 'library-item lib-arranged-positive';
-                    
-                    // 修改为：卡片内显示未编排人数
-const unarrangedCount = subject.count - subject.arranged;
-$library.append(`<div class="${cardClass}" data-name="${subject.name}" data-category="${subject.category}">${subject.name}<span class="lib-arranged-count">${unarrangedCount}</span></div>`);
-                });
-            });
-            
-            if (!hasVisibleContent) $library.html('<div class="empty-message">没有符合条件的学科</div>');
-            setTimeout(initDragAndDrop, 100);
-        }
+            // 修改为：卡片内显示未编排人数
+            const unarrangedCount = subject.count - subject.arranged;
+            $library.append(`<div class="${cardClass}" data-name="${subject.name}" data-category="${subject.category}">${subject.name}<span class="lib-arranged-count">${unarrangedCount}</span></div>`);
+        });
+    });
+    
+    if (!hasVisibleContent) $library.html('<div class="empty-message">没有符合条件的学科</div>');
+    setTimeout(initDragAndDrop, 100);
+}
         
         function initDragAndDrop() {
             $('.library-item').draggable({
@@ -1156,99 +1169,104 @@ $library.append(`<div class="${cardClass}" data-name="${subject.name}" data-cate
         }
         
         function bindEvents() {
-            $('#import-subjects').click(function() {
-                const inputText = $('#subject-input').val().trim();
-                if (!inputText) { showError('请输入学科数据'); return; }
-                const lines = inputText.split('\n');
-                const newSubjects = [];
-                for (const line of lines) {
-                    const trimmedLine = line.trim();
-                    if (!trimmedLine) continue;
-                    const parts = trimmedLine.split(/\s+/);
-                    if (parts.length < 2) { showError(`格式错误: "${line}"，应为"学科 人数"格式`); return; }
-                    const name = parts[0], count = parseInt(parts[1]);
-                    if (isNaN(count) || count <= 0) { showError(`人数格式错误: "${parts[1]}"`); return; }
-                    newSubjects.push({ name: name, count: count, arranged: 0, category: detectSubjectCategory(name) });
-                }
-                subjects = newSubjects;
-                renderSubjectList();
-                renderSubjectLibrary();
-                clearError();
-                showSuccess(`成功导入 ${subjects.length} 个学科`);
-                $('.subject-drop').text('').removeClass('subject-dropped');
-                $('.subject-drop .remove-subject').remove();
-                $('.count-input').val('');
-                $('.total-cell').text('0');
-                setTimeout(initDragAndDrop, 100);
-            });
-            
-            $('#generate-rooms').click(function() {
-                if (subjects.length === 0) { showError('请先导入学科数据'); return; }
-                if (generateExamRooms()) showSuccess(`成功生成 ${maxRooms} 个考场`);
-            });
-            
-            $(document).on('input', '.count-input', function() {
-                if (!isDataLoaded) return;
-                const $input = $(this), count = parseInt($input.val()) || 0;
-                const room = examRooms[$input.data('room') - 1];
-                if (room && room[$input.data('period')]) room[$input.data('period')][$input.data('group')].count = count;
-                recalculateAllSubjects();
-                renderSubjectList();
-	renderSubjectLibrary();
-                updateRowTotal($input.closest('tr'));
-            });
-            
-            $(document).on('click', '.remove-subject', function(e) {
-                e.stopPropagation();
-                const $subjectCell = $(this).closest('.subject-drop');
-                const subjectName = $subjectCell.text().trim();
-                removeSubjectFromCell($subjectCell, subjectName, true);
-            });
-            
-            $('#save-data').click(saveData);
-            $('#export-data').click(exportToExcel);
-            $('#center-quick-fill').click(function() {
-                if (!isDataLoaded) { showError('请先生成考场表格'); return; }
-                if (subjects.length === 0) { showError('请先导入学科数据'); return; }
-                quickFillSubjects();
-            });
-            
-            $('#restore-file').change(function() {
-                const file = this.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const savedData = JSON.parse(e.target.result);
-                        if (!savedData.subjects || !savedData.examRooms) { showError('文件格式不正确'); return; }
-                        restoreData(savedData);
-                        showSuccess(`数据已恢复，保存时间：${savedData.saveTime || '未知'}`);
-                    } catch (error) { showError('解析JSON失败: ' + error.message); }
-                };
-                reader.readAsText(file);
-            });
-            
-            $('#left-filter-select').change(function() {
-                activeLeftFilter = $(this).val();
-                renderSubjectList();
-            });
-            
-            $('#right-filter-select').change(function() {
-                activeRightFilter = $(this).val();
-                renderSubjectLibrary();
-            });
-
-            // 新增：右侧已编排完复选框事件
-            $('#right-filter-arranged-done').change(function() {
-                renderSubjectLibrary();
-            });
-            
-            $('#max-room').on('change', function() {
-                let v = parseInt($(this).val());
-                if (v < 1) $(this).val(1);
-                if (v > 200) $(this).val(200);
-            });
+    $('#import-subjects').click(function() {
+        const inputText = $('#subject-input').val().trim();
+        if (!inputText) { showError('请输入学科数据'); return; }
+        const lines = inputText.split('\n');
+        const newSubjects = [];
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
+            const parts = trimmedLine.split(/\s+/);
+            if (parts.length < 2) { showError(`格式错误: "${line}"，应为"学科 人数"格式`); return; }
+            const name = parts[0], count = parseInt(parts[1]);
+            if (isNaN(count) || count <= 0) { showError(`人数格式错误: "${parts[1]}"`); return; }
+            newSubjects.push({ name: name, count: count, arranged: 0, category: detectSubjectCategory(name) });
         }
+        subjects = newSubjects;
+        renderSubjectList();
+        renderSubjectLibrary();
+        clearError();
+        showSuccess(`成功导入 ${subjects.length} 个学科`);
+        $('.subject-drop').text('').removeClass('subject-dropped');
+        $('.subject-drop .remove-subject').remove();
+        $('.count-input').val('');
+        $('.total-cell').text('0');
+        setTimeout(initDragAndDrop, 100);
+    });
+    
+    $('#generate-rooms').click(function() {
+        if (subjects.length === 0) { showError('请先导入学科数据'); return; }
+        if (generateExamRooms()) showSuccess(`成功生成 ${maxRooms} 个考场`);
+    });
+    
+    $(document).on('input', '.count-input', function() {
+        if (!isDataLoaded) return;
+        const $input = $(this), count = parseInt($input.val()) || 0;
+        const room = examRooms[$input.data('room') - 1];
+        if (room && room[$input.data('period')]) room[$input.data('period')][$input.data('group')].count = count;
+        recalculateAllSubjects();
+        renderSubjectList();
+        renderSubjectLibrary(); // 确保右侧同步
+        updateRowTotal($input.closest('tr'));
+    });
+    
+    $(document).on('click', '.remove-subject', function(e) {
+        e.stopPropagation();
+        const $subjectCell = $(this).closest('.subject-drop');
+        const subjectName = $subjectCell.text().trim();
+        removeSubjectFromCell($subjectCell, subjectName, true);
+    });
+    
+    $('#save-data').click(saveData);
+    $('#export-data').click(exportToExcel);
+    $('#center-quick-fill').click(function() {
+        if (!isDataLoaded) { showError('请先生成考场表格'); return; }
+        if (subjects.length === 0) { showError('请先导入学科数据'); return; }
+        quickFillSubjects();
+    });
+    
+    $('#restore-file').change(function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const savedData = JSON.parse(e.target.result);
+                if (!savedData.subjects || !savedData.examRooms) { showError('文件格式不正确'); return; }
+                restoreData(savedData);
+                showSuccess(`数据已恢复，保存时间：${savedData.saveTime || '未知'}`);
+            } catch (error) { showError('解析JSON失败: ' + error.message); }
+        };
+        reader.readAsText(file);
+    });
+    
+    $('#left-filter-select').change(function() {
+        activeLeftFilter = $(this).val();
+        renderSubjectList();
+    });
+    
+    $('#right-filter-select').change(function() {
+        activeRightFilter = $(this).val();
+        renderSubjectLibrary();
+    });
+
+    // 新增：右侧已编排完复选框事件
+    $('#right-filter-arranged-done').change(function() {
+        renderSubjectLibrary();
+    });
+    
+    // 新增：右侧搜索框输入事件
+    $('#right-search-input').on('input', function() {
+        renderSubjectLibrary();
+    });
+    
+    $('#max-room').on('change', function() {
+        let v = parseInt($(this).val());
+        if (v < 1) $(this).val(1);
+        if (v > 200) $(this).val(200);
+    });
+}
         
         function quickFillSubjects() {
             const highCountSubjects = subjects.filter(s => s.count >= 50 && s.arranged < s.count);

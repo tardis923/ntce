@@ -8,7 +8,7 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
 <style>
-/* ================= 原始 CSS（未改动） ================= */
+/* ================= 原始 CSS（仅修复致命错误） ================= */
 * {
     margin: 0;
     padding: 0;
@@ -140,14 +140,12 @@ body {
     width: 230px;
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     padding: 20px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-
-    /* ✅ 防止列表撑到底 */
-    padding-bottom: 100px;
+    padding-bottom: 80px;
 }
 
 .panel-title {
@@ -217,7 +215,7 @@ body {
     border: 1px solid #ecf0f1;
     border-radius: 4px;
     padding: 10px;
-    margin-bottom: 50; /* ✅ 删掉多余间距 */
+    margin-bottom: 50px;
 }
 
 .subject-item {
@@ -269,14 +267,6 @@ body {
     display: flex;
     flex-direction: column;
     min-width: 0;
-}
-
-.arrangement-header {
-    margin-bottom: 15px;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .table-container {
@@ -410,7 +400,7 @@ tr.ui-sortable-helper {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     padding: 20px;
-    padding-bottom: 100px; /* ✅ 关键：给右侧面板底部留空间 */
+    padding-bottom: 80px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -422,7 +412,7 @@ tr.ui-sortable-helper {
     display: flex;
     flex-direction: column;
     gap: 8px;
-padding-bottom: 100px;
+    padding-bottom: 80px;
 }
 
 .library-item {
@@ -709,14 +699,20 @@ padding-bottom: 100px;
                 <button id="generate-rooms" class="btn-uniform btn-generate">生成考场</button>
                 <button id="center-quick-fill" class="btn-uniform btn-quickfill">快速编排</button>
                 <button id="save-data" class="btn-uniform btn-save">备份数据</button>
-<div class="file-upload-container">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="button-group-label">文件</div>
+            <div class="button-container">
+                <div class="file-upload-container">
                     <button class="btn-uniform btn-import">还原数据</button>
                     <input type="file" id="restore-file" accept=".json">
                 </div>
                 <button id="export-data" class="btn-uniform btn-export">导出Excel</button>
             </div>
         </div>
- </div>
+    </div>
 </div>
 
 <div class="quick-fill-container">
@@ -771,8 +767,6 @@ padding-bottom: 100px;
         <div class="subject-list" id="subject-list">
             <div class="empty-message">暂无学科数据，请导入</div>
         </div>
-
-        
     </div>
 
     <div class="arrangement-area">
@@ -786,7 +780,7 @@ padding-bottom: 100px;
                 <thead>
                     <tr>
                         <th class="row-handle">拖动</th>
-                        <th class="exam-room-header"></th>
+                        <th class="exam-room-header">考场号</th>
                         <th class="time-period-header" colspan="9">第一天上午</th>
                         <th class="time-period-header" colspan="9">第一天下午</th>
                         <th class="time-period-header" colspan="9">第二天上午</th>
@@ -794,51 +788,51 @@ padding-bottom: 100px;
                     </tr>
                     <tr>
                         <th></th>
-                        <th></th>
+                        <th>A</th>
                         <th class="group-header" colspan="2">第1组</th>
                         <th class="group-header" colspan="2">第2组</th>
                         <th class="group-header" colspan="2">第3组</th>
                         <th class="group-header" colspan="2">第4组</th>
-                        <th></th>
+                        <th>J</th>
                         <th class="group-header" colspan="2">第1组</th>
                         <th class="group-header" colspan="2">第2组</th>
                         <th class="group-header" colspan="2">第3组</th>
                         <th class="group-header" colspan="2">第4组</th>
-                        <th></th>
+                        <th>S</th>
                         <th class="group-header" colspan="2">第1组</th>
                         <th class="group-header" colspan="2">第2组</th>
                         <th class="group-header" colspan="2">第3组</th>
                         <th class="group-header" colspan="2">第4组</th>
-                        <th></th>
+                        <th>AD</th>
                         <th class="group-header" colspan="2">第1组</th>
                         <th class="group-header" colspan="2">第2组</th>
                         <th class="group-header" colspan="2">第3组</th>
                         <th class="group-header" colspan="2">第4组</th>
-                        <th></th>
+                        <th>AI</th>
                     </tr>
                     <tr>
                         <th></th>
-                        <th>考场</th>
+                        <th>考场号</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
-                        <th>计</th>
+                        <th>小计</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
-                        <th>计</th>
+                        <th>小计</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
-                        <th>计</th>
+                        <th>小计</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
                         <th>学科</th><th>人数</th>
-                        <th>计</th>
+                        <th>小计</th>
                     </tr>
                 </thead>
                 <tbody id="table-body"></tbody>
@@ -1092,6 +1086,7 @@ function dropSubject(subjectName, $target) {
 
     recalculateAllSubjects();
     renderSubjectList();
+    renderSubjectLibrary();
     updateRowTotal($target.closest('tr'));
     updateGlobalStats();
 }
@@ -1148,12 +1143,26 @@ function generateExamRooms() {
             $h.children().each((i, el) => $(el).width($o.eq(i).width()));
             return $h;
         },
-        update: updateRoomNumbers
+        update: function () {
+            updateRoomNumbers();
+            syncExamRoomsOrder(); // ✅ 修复：同步数组顺序
+        }
     }).disableSelection();
 
     isDataLoaded = true;
     updateGlobalStats();
     return true;
+}
+
+/* ✅ 新增：同步 examRooms 顺序 */
+function syncExamRoomsOrder() {
+    const newRooms = [];
+    $('#table-body tr').each(function () {
+        const id = parseInt($(this).data('room-id'));
+        const room = examRooms.find(r => r.id === id);
+        if (room) newRooms.push(room);
+    });
+    examRooms = newRooms;
 }
 
 function generateGroupCells(groups, period, roomId) {
@@ -1175,7 +1184,7 @@ function generateGroupCells(groups, period, roomId) {
                        data-room="${roomId}"
                        data-period="${period}"
                        data-group="${i}"
-                       value="${g.count||''}"
+                       value="${g.count||0}"
                        min="0" step="1">
             </td>
         `;
@@ -1196,7 +1205,7 @@ function removeSubjectFromCell($cell, subjectName, updateRender = true) {
         const room = examRooms[roomId - 1];
         if (room && room[period]) {
             room[period][groupIndex].subject = '';
-            room[period][groupIndex].count = '';
+            room[period][groupIndex].count = 0; // ✅ 修复空字符串
         }
 
         const $input = $(`.count-input[data-room="${roomId}"][data-period="${period}"][data-group="${groupIndex}"]`);
@@ -1314,7 +1323,7 @@ function bindEvents() {
 
         $('.subject-drop').text('').removeClass('subject-dropped');
         $('.subject-drop .remove-subject').remove();
-        $('.count-input').val('');
+        $('.count-input').val(0);
         $('.total-cell').text('0');
 
         updateGlobalStats();
@@ -1331,12 +1340,15 @@ function bindEvents() {
     });
 
     $(document).on('input', '.count-input', function () {
+        let val = parseInt($(this).val()) || 0;
+        if (val < 0) val = 0; // ✅ 防负数
+        $(this).val(val);
+
         if (!isDataLoaded) return;
         const $input = $(this);
         const room = examRooms[$input.data('room') - 1];
         if (room && room[$input.data('period')]) {
-            room[$input.data('period')][$input.data('group')].count =
-                parseInt($input.val()) || 0;
+            room[$input.data('period')][$input.data('group')].count = val;
         }
         recalculateAllSubjects();
         renderSubjectList();
@@ -1415,7 +1427,7 @@ function bindEvents() {
     });
 }
 
-/* ================= 快速编排 ================= */
+/* ================= 快速编排（已修复DOM同步问题） ================= */
 function quickFillSubjects() {
     if (!isDataLoaded || examRooms.length === 0) {
         showError('请先生成考场');
@@ -1435,11 +1447,12 @@ function quickFillSubjects() {
     let filledRooms = 0;
 
     for (const room of examRooms) {
-        let empty = true;
+        let roomUsed = 0;
+        let hasSubject = false;
         ['day1am','day1pm','day2am','day2pm'].forEach(p => {
-            room[p].forEach(g => { if (g.subject) empty = false; });
+            room[p].forEach(g => { if (g.subject) hasSubject = true; });
         });
-        if (!empty) continue;
+        if (hasSubject) continue;
 
         let subject = null;
         for (const cat of order) {
@@ -1448,12 +1461,6 @@ function quickFillSubjects() {
         }
         if (!subject) break;
 
-        let remain = subject.count - subject.arranged;
-        if (remain <= 0) continue;
-
-        const maxPerRoom = 50;
-        const toFill = Math.min(remain, maxPerRoom);
-
         const slots = [
             { period: 'day1am', max: 12 },
             { period: 'day1pm', max: 13 },
@@ -1461,17 +1468,26 @@ function quickFillSubjects() {
             { period: 'day2pm', max: 13 }
         ];
 
-        let left = toFill;
-        slots.forEach(s => {
-            if (left <= 0) return;
-            const take = Math.min(left, s.max);
+        let remain = subject.count - subject.arranged;
+        if (remain <= 0) continue;
+
+        for (const s of slots) {
+            if (roomUsed >= 50) break;
+            if (remain <= 0) break;
+
+            const take = Math.min(remain, s.max, 50 - roomUsed);
+            if (take <= 0) continue;
 
             room[s.period][0].subject = subject.name;
             room[s.period][0].count = take;
             subject.arranged += take;
-            left -= take;
-        });
+            roomUsed += take;
+            remain -= take;
+        }
 
+        // ✅ 修复：同步数据到DOM
+        syncQuickFillToDOM(room);
+        
         updateRowTotal($(`tr[data-room-id="${room.id}"]`));
         filledRooms++;
     }
@@ -1488,6 +1504,40 @@ function quickFillSubjects() {
     }
 }
 
+// ✅ 新增：同步快速编排结果到DOM的函数
+function syncQuickFillToDOM(room) {
+    const $row = $(`tr[data-room-id="${room.id}"]`);
+    if (!$row.length) return;
+
+    ['day1am', 'day1pm', 'day2am', 'day2pm'].forEach(period => {
+        room[period].forEach((g, idx) => {
+            const $cell = $row.find(
+                `.subject-drop[data-period="${period}"][data-group="${idx}"]`
+            );
+            const $input = $row.find(
+                `.count-input[data-period="${period}"][data-group="${idx}"]`
+            );
+
+            if ($cell.length && $input.length) {
+                if (g.subject && g.subject.trim() !== '') {
+                    $cell.text(g.subject)
+                         .addClass('subject-dropped');
+                    
+                    if ($cell.find('.remove-subject').length === 0) {
+                        $cell.append('<div class="remove-subject">×</div>');
+                    }
+                } else {
+                    $cell.text('').removeClass('subject-dropped');
+                    $cell.find('.remove-subject').remove();
+                }
+                
+                $input.val(g.count || 0);
+            }
+        });
+    });
+}
+
+/* ================= 保存 / 还原 ================= */
 /* ================= 保存 / 还原 ================= */
 function saveData() {
     if (subjects.length === 0 && examRooms.length === 0) {
@@ -1507,7 +1557,18 @@ function saveData() {
     const uri = 'data:application/json;charset=utf-8,' + encodeURIComponent(str);
     const a = document.createElement('a');
     a.href = uri;
-    a.download = `考场编排保存_${Date.now()}.json`;
+    
+    // ✅ 修改：文件名包含年月日时间
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    // 格式：考场编排保存_YYYYMMDD_HHMMSS.json
+    a.download = `考场编排保存_${year}${month}${day}_${hours}${minutes}${seconds}.json`;
     a.click();
 
     showSuccess(`数据已保存，共${subjects.length}个学科，${examRooms.length}个考场`);
@@ -1553,7 +1614,10 @@ function restoreData(savedData) {
                 $h.children().each((i, el) => $(el).width($o.eq(i).width()));
                 return $h;
             },
-            update: updateRoomNumbers
+            update: function () {
+                updateRoomNumbers();
+                syncExamRoomsOrder();
+            }
         }).disableSelection();
 
         isDataLoaded = true;
@@ -1583,11 +1647,60 @@ function exportToExcel() {
         };
 
         const data = [];
+        
+        // ✅ 修复1：完整的表头结构
+        // 第1行：标题
         data.push(['考场编排表']);
-        data.push(['拖动','考场号','第一天上午','','','','','小计','第一天下午','','','','','','小计','第二天上午','','','','','','小计','第二天下午','','','','','','小计']);
-        data.push(['','A','第1组','','第2组','','第3组','','第4组','','J','第1组','','第2组','','第3组','','第4组','','S','第1组','','第2组','','第3组','','第4组','','AD','第1组','','第2组','','第3组','','第4组','','AI']);
-        data.push(['','考场号','学科','人数','学科','人数','学科','人数','学科','人数','小计','学科','人数','学科','人数','学科','人数','学科','人数','小计','学科','人数','学科','人数','学科','人数','学科','人数','小计','学科','人数','学科','人数','学科','人数','学科','人数','小计']);
+        
+        // 第2行：时间段标题（合并单元格用）
+        const headerRow2 = ['拖动', '考场号'];
+        // 第一天上午
+        for (let i = 0; i < 9; i++) headerRow2.push(''); // 为"第一天上午"预留位置
+        // 第一天下午
+        for (let i = 0; i < 9; i++) headerRow2.push(''); // 为"第一天下午"预留位置
+        // 第二天上午
+        for (let i = 0; i < 9; i++) headerRow2.push(''); // 为"第二天上午"预留位置
+        // 第二天下午
+        for (let i = 0; i < 9; i++) headerRow2.push(''); // 为"第二天下午"预留位置
+        data.push(headerRow2);
+        
+        // 第3行：组标题
+        const headerRow3 = ['', 'A'];
+        // 第一天上午
+        headerRow3.push('第1组','','第2组','','第3组','','第4组','','J');
+        // 第一天下午
+        headerRow3.push('第1组','','第2组','','第3组','','第4组','','S');
+        // 第二天上午
+        headerRow3.push('第1组','','第2组','','第3组','','第4组','','AD');
+        // 第二天下午
+        headerRow3.push('第1组','','第2组','','第3组','','第4组','','AI');
+        data.push(headerRow3);
+        
+        // 第4行：详细表头
+        const headerRow4 = ['', '考场号'];
+        // 第一天上午
+        for (let i = 0; i < 4; i++) {
+            headerRow4.push('学科', '人数');
+        }
+        headerRow4.push('小计');
+        // 第一天下午
+        for (let i = 0; i < 4; i++) {
+            headerRow4.push('学科', '人数');
+        }
+        headerRow4.push('小计');
+        // 第二天上午
+        for (let i = 0; i < 4; i++) {
+            headerRow4.push('学科', '人数');
+        }
+        headerRow4.push('小计');
+        // 第二天下午
+        for (let i = 0; i < 4; i++) {
+            headerRow4.push('学科', '人数');
+        }
+        headerRow4.push('小计');
+        data.push(headerRow4);
 
+        // 数据行
         examRooms.forEach((room, i) => {
             const row = ['', i + 1];
             const pushPeriod = (p) => {
@@ -1605,27 +1718,56 @@ function exportToExcel() {
         });
 
         const ws = XLSX.utils.aoa_to_sheet(data);
-        ws['!cols'] = [
-            {wch:5},{wch:8},{wch:8},{wch:6},{wch:8},{wch:6},
-            {wch:8},{wch:6},{wch:8},{wch:6},{wch:6},
-            {wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},
-            {wch:8},{wch:6},{wch:6},{wch:8},{wch:6},
-            {wch:8},{wch:6},{wch:8},{wch:6},{wch:8},{wch:6},
-            {wch:6},{wch:8},{wch:6},{wch:8},{wch:6},
-            {wch:8},{wch:6},{wch:8},{wch:6}
-        ];
+        
+        // ✅ 修复2：列宽设置
+        const colWidths = [];
+        // 拖动列
+        colWidths.push({wch: 5});
+        // 考场号列
+        colWidths.push({wch: 8});
+        // 每个学科/人数列
+        for (let i = 0; i < 36; i++) {
+            if (i % 2 === 0) { // 学科列
+                colWidths.push({wch: 8});
+            } else { // 人数列
+                colWidths.push({wch: 6});
+            }
+        }
+        // 4个小计列
+        for (let i = 0; i < 4; i++) {
+            colWidths.push({wch: 6});
+        }
+        ws['!cols'] = colWidths;
 
+        // ✅ 修复3：正确的合并单元格
         ws['!merges'] = [
-            {s:{r:0,c:0},e:{r:0,c:38}},
-            {s:{r:1,c:2},e:{r:1,c:9}},
-            {s:{r:1,c:10},e:{r:1,c:17}},
-            {s:{r:1,c:18},e:{r:1,c:25}},
-            {s:{r:1,c:26},e:{r:1,c:33}}
+            // 标题行合并
+            {s: {r: 0, c: 0}, e: {r: 0, c: 37}},
+            
+            // 第二天上午时间段合并
+            {s: {r: 1, c: 2}, e: {r: 1, c: 10}},
+            // 第一天下午时间段合并
+            {s: {r: 1, c: 11}, e: {r: 1, c: 19}},
+            // 第二天上午时间段合并
+            {s: {r: 1, c: 20}, e: {r: 1, c: 28}},
+            // 第二天下午时间段合并
+            {s: {r: 1, c: 29}, e: {r: 1, c: 37}}
         ];
+        
+        // ✅ 修复4：为合并单元格设置文本
+        // 设置时间段标题
+        if (!ws['C2']) ws['C2'] = {};
+        ws['C2'].v = '第一天上午';
+        if (!ws['L2']) ws['L2'] = {};
+        ws['L2'].v = '第一天下午';
+        if (!ws['U2']) ws['U2'] = {};
+        ws['U2'].v = '第二天上午';
+        if (!ws['AD2']) ws['AD2'] = {};
+        ws['AD2'].v = '第二天下午';
 
         XLSX.utils.book_append_sheet(wb, ws, "考场编排表");
 
-        const wbout = XLSX.write(wb, { bookType:'xlsx', type:'binary' });
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
 
         function s2ab(s) {
             const buf = new ArrayBuffer(s.length);
@@ -1634,7 +1776,7 @@ function exportToExcel() {
             return buf;
         }
 
-        const blob = new Blob([s2ab(wbout)], { type:"application/octet-stream" });
+        const blob = new Blob([s2ab(wbout)], { type: "application/octet-stream" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;

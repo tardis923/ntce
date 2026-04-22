@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -336,13 +337,21 @@
         }
         
         .table-container {
-            flex-grow: 1;
-            overflow: auto;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            /* 新增：为表格容器设置相对定位和裁剪 */
-            position: relative;
-        }
+    /* 核心：脱离所有父级的 Flex 计算 */
+    position: fixed; 
+    top: 180px;      /* 根据你的头部高度调整 */
+    left: 270px;     /* 左边栏宽度 + 间距 */
+    right: 190px;    /* 右边栏宽度 + 间距 */
+    bottom: 20px;
+    
+    overflow-x: auto; /* 强制底部滚动 */
+    overflow-y: auto;
+    
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: #fff;
+    z-index: 10;
+}
         
         table {
             width: 100%;
@@ -785,7 +794,7 @@
         <div class="control-panel">
             <div class="control-group">
                 <label for="max-room">考场数</label>
-                <input type="number" id="max-room" value="60" min="1" max="200">
+                <input type="number" id="max-room" value="40" min="10" max="200">
             </div>
             
             <div class="control-group">

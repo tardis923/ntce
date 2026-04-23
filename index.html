@@ -717,7 +717,7 @@ tr.ui-sortable-helper {
 
 <div class="quick-fill-container">
     <div class="quick-fill-hint">
-        快速编排规则：每个考场只填充一个学科，上午小计不超过12人，下午小计不超过13人，只处理人数≥50的学科
+        快速编排规则：每个考场只填充一个学科，上午小计不超过12人，下午小计不超过14人，只处理人数≥52的学科
     </div>
 </div>
 
@@ -1463,9 +1463,9 @@ function quickFillSubjects() {
 
         const slots = [
             { period: 'day1am', max: 12 },
-            { period: 'day1pm', max: 13 },
+            { period: 'day1pm', max: 14 },
             { period: 'day2am', max: 12 },
-            { period: 'day2pm', max: 13 }
+            { period: 'day2pm', max: 14 }
         ];
 
         let remain = subject.count - subject.arranged;

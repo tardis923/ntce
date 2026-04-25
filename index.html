@@ -2,10 +2,11 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>学科编排系统（修复版）</title>
+<title>学科编排系统（最终修复版）</title>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
+/* 样式与原版一致，为节省篇幅省略，实际保留全部样式 */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Microsoft YaHei',Arial,sans-serif;}
 body{background-color:#f5f7fa;padding:20px;color:#333;height:100vh;overflow:hidden;}
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #3498db;height:80px;flex-shrink:0;}
@@ -121,7 +122,7 @@ tr.ui-sortable-helper{background-color:#e8f4fc;}
 <div id="global-stats"><div class="stat-item">总人数：<span id="stat-total-count">0</span></div><div class="stat-item">第一天上午：<span id="stat-day1am-arranged">0</span></div><div class="stat-item">第一天下午：<span id="stat-day1pm-arranged">0</span></div><div class="stat-item">第二天上午：<span id="stat-day2am-arranged">0</span></div><div class="stat-item">第二天下午：<span id="stat-day2pm-arranged">0</span></div><div class="stat-item">剩余人数：<span id="stat-total-remain">0</span></div></div>
 <div class="main-container">
 <div class="subject-panel"><div class="panel-title">学科管理</div><div class="import-area"><div class="import-section"><h4>导入学科数据</h4><p style="font-size:12px;margin-bottom:8px;color:#7f8c8d;">格式：学科 人数（每行一个）</p><textarea id="subject-input" placeholder="例如：&#10;高数 120&#10;高语 100&#10;高英 90"></textarea><button id="import-subjects">导入学科</button></div><div class="error-message" id="import-error"></div><div class="success-message" id="import-success"></div></div><div class="filter-section"><div class="panel-title" style="font-size:14px;">筛选学科</div><select class="filter-dropdown" id="left-filter-select"><option value="all">全部学科</option><option value="preschool">幼教学科</option><option value="primary">小学学科</option><option value="junior">初中学科</option><option value="high">高中学科</option><option value="vocational">中职学科</option></select><div class="filter-stats" id="left-filter-stats">共 0 个学科</div></div><div class="panel-title">学科列表（按人数排序）</div><div class="subject-list" id="subject-list"><div class="empty-message">暂无学科数据，请导入</div></div></div>
-<div class="arrangement-area"><div class="arrangement-header"><div class="panel-title">考场编排表</div><div id="arrangement-stats" style="font-size:13px;color:#7f8c8d;">共 0 个考场</div></div><div class="table-container"><table id="exam-table"><thead><tr><th class="row-handle">拖动</th><th class="exam-room-header">考场号</th><th class="time-period-header" colspan="9">第一天上午</th><th class="time-period-header" colspan="9">第一天下午</th><th class="time-period-header" colspan="9">第二天上午</th><th class="time-period-header" colspan="9">第二天下午</th></tr><tr><th></th><th>A</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>J</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>S</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>AD</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>AI</th></tr><tr><th></th><th>考场号</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th></tr></thead><tbody id="table-body"></tbody></table></div></div>
+<div class="arrangement-area"><div class="arrangement-header"><div class="panel-title">考场编排表</div><div id="arrangement-stats" style="font-size:13px;color:#7f8c8d;">共 0 个考场</div></div><div class="table-container"><table id="exam-table"><thead><tr><th class="row-handle">拖动</th><th class="exam-room-header">考场号</th><th class="time-period-header" colspan="9">第一天上午</th><th class="time-period-header" colspan="9">第一天下午</th><th class="time-period-header" colspan="9">第二天上午</th><th class="time-period-header" colspan="9">第二天下午</th></tr><tr><th></th><th>A</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>J</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>S</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>AD</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>AI</th> </tr><tr><th></th><th>考场号</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th></tr></thead><tbody id="table-body"></tbody></table></div></div>
 <div class="subject-library"><div class="panel-title">学科列表</div><div class="filter-section"><input type="text" id="right-search-input" placeholder="搜索学科名称..." style="width:100%;padding:6px;margin-bottom:8px;border:1px solid #bdc3c7;border-radius:4px;font-size:12px;"><div class="filter-checkbox-container" style="margin-bottom:8px;"><label><input type="checkbox" id="right-filter-arranged-done"> 隐藏已编排完学科</label></div><select class="filter-dropdown" id="right-filter-select"><option value="all">全部学科</option><option value="preschool">幼教学科</option><option value="primary">小学学科</option><option value="junior">初中学科</option><option value="high">高中学科</option><option value="vocational">中职学科</option></select><div class="filter-stats" id="right-filter-stats">共 0 个学科</div></div><div class="library-container" id="library-container"><div class="empty-message">暂无学科数据</div></div></div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -205,23 +206,42 @@ function initDragAndDrop(){
     $('.library-item').draggable({helper:'clone',revert:'invalid',cursor:'move',zIndex:10000,start(){ $('.subject-drop').addClass('highlight-drop'); },stop(){ $('.subject-drop').removeClass('highlight-drop'); }});
     $('.subject-drop').droppable({accept:'.library-item',tolerance:'pointer',hoverClass:'ui-state-hover',drop(e,ui){ dropSubject(ui.draggable.data('name'), $(this)); }});
 }
+// ✅ 修复后的 dropSubject：覆盖学科时人数清零，仅扣减旧学科，新学科不增加人数
 function dropSubject(subjectName, $target){
-    let roomId=$target.data('room');
-    let period=$target.data('period');
-    let groupIdx=$target.data('group');
+    let roomId = $target.data('room');
+    let period = $target.data('period');
+    let groupIdx = $target.data('group');
     if(!roomId || period===undefined || groupIdx===undefined) return;
-    let room=examRooms.find(r=>r.id===roomId);
+    let room = examRooms.find(r=>r.id===roomId);
     if(!room) return;
-    let oldSubject=room[period][groupIdx].subject;
-    if(oldSubject && oldSubject!==subjectName){
-        let oldSub=subjects.find(s=>s.name===oldSubject);
-        if(oldSub) oldSub.arranged -= (parseInt(room[period][groupIdx].count)||0);
+
+    let oldCount = room[period][groupIdx].count || 0;
+    let oldSubject = room[period][groupIdx].subject;
+
+    // 1. 扣减旧学科的人数
+    if(oldSubject && oldSubject.trim() !== '' && oldSubject !== subjectName){
+        let oldSub = subjects.find(s=>s.name===oldSubject);
+        if(oldSub) oldSub.arranged -= oldCount;
     }
-    room[period][groupIdx].subject=subjectName;
-    let newSub=subjects.find(s=>s.name===subjectName);
-    if(newSub) newSub.arranged += (parseInt(room[period][groupIdx].count)||0);
+
+    // 2. 写入新学科，人数清零
+    room[period][groupIdx].subject = subjectName;
+    room[period][groupIdx].count = 0;
+
+    // 3. 同步 DOM 中的人数输入框
+    let $input = $(`.count-input[data-room="${roomId}"][data-period="${period}"][data-group="${groupIdx}"]`);
+    if($input.length) $input.val(0);
+
+    // 4. 新学科人数增加 0（无需额外操作，recalculateAllSubjects 会基于实际 count=0 计算）
+    // 注意：新学科如果之前已有编排，其 arranged 保持不变；此处并未错误增加。
+
+    // 5. 更新单元格显示
     $target.text(subjectName).addClass('subject-dropped');
-    if($target.find('.remove-subject').length===0) $target.append('<div class="remove-subject">×</div>');
+    if($target.find('.remove-subject').length === 0){
+        $target.append('<div class="remove-subject">×</div>');
+    }
+
+    // 6. 重新计算所有学科的已编排数（基于最新考场数据）
     recalculateAllSubjects();
     renderSubjectList();
     renderSubjectLibrary();
@@ -296,7 +316,7 @@ function renderExamTable(){
                 <td class="total-cell day2am-total">${calculatePeriodTotal(room.day2am)}</td>
                 ${generateGroupCells(room.day2pm,'day2pm',room.id)}
                 <td class="total-cell day2pm-total">${calculatePeriodTotal(room.day2pm)}</td>
-            </tr>
+             </tr>
         `);
         $tbody.append(row);
     });

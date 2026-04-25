@@ -2,879 +2,131 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>学科编排系统</title>
-
+<title>学科编排系统（修复版）</title>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-
 <style>
-/* ================= 原始 CSS（仅修复致命错误） ================= */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Microsoft YaHei', Arial, sans-serif;
-}
-
-body {
-    background-color: #f5f7fa;
-    padding: 20px;
-    color: #333;
-    height: 100vh;
-    overflow: hidden;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #3498db;
-    height: 80px;
-    flex-shrink: 0;
-}
-
-.header h1 {
-    color: #2c3e50;
-    font-size: 24px;
-}
-
-.control-panel {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.control-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.control-group label {
-    font-size: 12px;
-    color: #7f8c8d;
-}
-
-.control-panel input,
-.control-panel select {
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: 1px solid #bdc3c7;
-    font-size: 13px;
-}
-
-.control-panel input {
-    width: 120px;
-}
-
-.control-panel select {
-    width: 120px;
-    background-color: white;
-}
-
-.btn-uniform {
-    width: 100px;
-    height: 36px;
-    padding: 0;
-    font-size: 13px;
-    font-weight: bold;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s;
-}
-
-.btn-generate { background-color: #3498db; color: white; }
-.btn-generate:hover { background-color: #2980b9; }
-
-.btn-save { background-color: #2ecc71; color: white; }
-.btn-save:hover { background-color: #27ae60; }
-
-.btn-import { background-color: #e67e22; color: white; }
-.btn-import:hover { background-color: #d35400; }
-
-.btn-export { background-color: #9b59b6; color: white; }
-.btn-export:hover { background-color: #8e44ad; }
-
-.btn-quickfill { background-color: #1abc9c; color: white; }
-.btn-quickfill:hover { background-color: #16a085; }
-
-.button-container {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.button-group-label {
-    font-size: 12px;
-    color: #7f8c8d;
-    margin-bottom: 3px;
-}
-
-.file-upload-container {
-    position: relative;
-}
-
-.file-upload-container input[type="file"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.main-container {
-    display: flex;
-    gap: 20px;
-    height: calc(100vh - 120px);
-}
-
-.subject-panel {
-    width: 230px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    padding-bottom: 80px;
-}
-
-.panel-title {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ecf0f1;
-}
-
-.import-area {
-    margin-bottom: 20px;
-}
-
-.import-section {
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    border: 1px solid #e0e0e0;
-}
-
-.import-section h4 {
-    margin-bottom: 8px;
-    color: #2c3e50;
-    font-size: 13px;
-}
-
-.import-area textarea {
-    width: 100%;
-    height: 80px;
-    padding: 8px;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    font-size: 12px;
-    resize: vertical;
-    margin-bottom: 8px;
-}
-
-.import-area button {
-    width: 100%;
-    padding: 8px;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: background-color 0.3s;
-    margin-bottom: 5px;
-}
-
-.import-area button:hover {
-    background-color: #27ae60;
-}
-
-.filter-section {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #ecf0f1;
-}
-
-.subject-list {
-    flex-grow: 1;
-    overflow-y: auto;
-    border: 1px solid #ecf0f1;
-    border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 50px;
-}
-
-.subject-item {
-    display: flex;
-    padding: 8px 0;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-    border-left: 4px solid #3498db;
-    font-size: 13px;
-    transition: all 0.3s;
-}
-
-.subject-item.status-complete {
-    background-color: #d5f4e6;
-    border-left-color: #27ae60;
-}
-
-.subject-item.status-warning {
-    background-color: #fff3cd;
-    border-left-color: #ffc107;
-}
-
-.subject-item.status-error {
-    background-color: #f8d7da;
-    border-left-color: #dc3545;
-}
-
-.subject-name {
-    font-weight: 500;
-}
-
-.subject-count {
-    color: #7f8c8d;
-    font-size: 12px;
-}
-
-.status-arranged { color: #27ae60; font-size: 11px; }
-.status-warning { color: #ffc107; font-size: 11px; }
-.status-error { color: #dc3545; font-size: 11px; }
-
-.arrangement-area {
-    flex-grow: 1;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    padding: 20px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.table-container {
-    position: fixed;
-    top: 180px;
-    left: 270px;
-    right: 190px;
-    bottom: 20px;
-    overflow-x: auto;
-    overflow-y: auto;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    background: #fff;
-    z-index: 10;
-}
-
-table {
-    width: 100%;
-    border-collapse: separate;
-    min-width: 1200px;
-}
-
-thead {
-    background-color: #34495e;
-    color: white;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-}
-
-th, td {
-    border: 1px solid #bdc3c7;
-    padding: 6px 8px;
-    text-align: center;
-    font-size: 12px;
-}
-
-th {
-    font-weight: bold;
-}
-
-.exam-room-header { background-color: #2c3e50; }
-.time-period-header { background-color: #3498db; }
-.group-header { background-color: #2980b9; }
-
-.subject-drop {
-    min-height: 25px;
-    min-width: 50px;
-    border: 1px dashed #7f8c8d;
-    border-radius: 3px;
-    padding: 3px;
-    background-color: #f8f9fa;
-    cursor: pointer;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: all 0.2s;
-}
-
-.subject-dropped {
-    background-color: #d5f4e6;
-    border: 1px solid #27ae60;
-}
-
-.remove-subject {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 16px;
-    height: 16px;
-    background-color: #e74c3c;
-    color: white;
-    border-radius: 50%;
-    font-size: 10px;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 5;
-}
-
-.subject-dropped:hover .remove-subject {
-    display: flex;
-}
-
-.subject-dropped .remove-subject:hover {
-    background-color: #c0392b;
-}
-
-.count-input {
-    width: 100%;
-    padding: 5px;
-    border: 1px solid #bdc3c7;
-    border-radius: 3px;
-    text-align: center;
-    font-size: 12px;
-}
-
-.count-input::-webkit-inner-spin-button,
-.count-input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-.count-input[type=number] {
-    -moz-appearance: textfield;
-}
-
-.total-cell {
-    background-color: #fcf3cf;
-    font-weight: bold;
-    font-size: 12px;
-}
-
-.row-handle {
-    cursor: move;
-    color: #7f8c8d;
-    text-align: center;
-    width: 30px;
-}
-
-tr.ui-sortable-helper {
-    background-color: #e8f4fc;
-}
-
-.subject-library {
-    width: 160px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    padding: 20px;
-    padding-bottom: 80px;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-}
-
-.library-container {
-    flex-grow: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-bottom: 80px;
-}
-
-.library-item {
-    padding: 8px 6px;
-    background-color: #ecf0f1;
-    border-radius: 4px;
-    cursor: grab;
-    text-align: center;
-    border: 1px solid #bdc3c7;
-    transition: all 0.2s;
-    font-size: 12px;
-    min-height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    user-select: none;
-}
-
-.library-item:hover {
-    background-color: #d6dbdf;
-    transform: translateY(-2px);
-}
-
-.library-item.ui-draggable-dragging {
-    opacity: 0.9;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    transform: scale(1.05);
-    z-index: 10000;
-}
-
-.status-indicator {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 15px;
-    padding: 10px;
-    border-top: 1px solid #ecf0f1;
-    max-height: 110px;
-    overflow-y: auto;
-    background: #fff;
-}
-
-.status-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-}
-
-.status-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-}
-
-.complete-color { background-color: #d5f4e6; border: 1px solid #27ae60; }
-.warning-color { background-color: #fff3cd; border: 1px solid #ffc107; }
-.error-color   { background-color: #f8d7da; border: 1px solid #dc3545; }
-.unarranged-color { background-color: #f8f9fa; border: 1px dashed #7f8c8d; }
-
-.error-message {
-    color: #e74c3c;
-    font-size: 12px;
-    margin-top: 5px;
-    display: none;
-}
-
-.success-message {
-    color: #27ae60;
-    font-size: 12px;
-    margin-top: 5px;
-    display: none;
-}
-
-.filter-stats {
-    font-size: 12px;
-    color: #7f8c8d;
-    margin-top: 5px;
-    text-align: center;
-}
-
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #bdc3c7;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #95a5a6;
-}
-
-@media (max-width: 1400px) {
-    .main-container {
-        flex-direction: column;
-        height: auto;
-    }
-    .subject-panel, .subject-library {
-        width: 100%;
-    }
-}
-
-.subject-drop.highlight-drop {
-    background-color: #e3f2fd;
-    border-color: #3498db;
-    border-style: solid;
-    box-shadow: 0 0 8px rgba(52,152,219,0.7);
-    transform: scale(1.05);
-}
-
-.empty-message {
-    text-align: center;
-    color: #7f8c8d;
-    padding: 20px;
-    font-style: italic;
-}
-
-.filter-dropdown {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    font-size: 12px;
-    margin-bottom: 10px;
-    background-color: white;
-}
-
-.quick-fill-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.quick-fill-hint {
-    font-size: 12px;
-    color: #7f8c8d;
-    flex-grow: 1;
-}
-
-.center-quick-fill-btn {
-    background-color: #1abc9c;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    white-space: nowrap;
-}
-
-.center-quick-fill-btn:hover {
-    background-color: #16a085;
-}
-
-.library-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 8px;
-}
-
-.lib-arranged-count {
-    font-weight: bold;
-    margin-left: 6px;
-    font-size: 11px;
-}
-
-.lib-arranged-zero { background-color: #d5f4e6; }
-.lib-arranged-positive { background-color: #f8d7da; }
-.lib-arranged-negative { background-color: #fff3cd; }
-
-.filter-checkbox-container {
-    margin-bottom: 10px;
-    font-size: 12px;
-}
-
-#exam-table th:nth-child(1),
-#exam-table td:nth-child(1),
-#exam-table th:nth-child(2),
-#exam-table td:nth-child(2) {
-    position: sticky;
-    left: 0;
-    z-index: 15;
-    background-color: #ecf0f1;
-    min-width: 40px;
-}
-
-#exam-table th:nth-child(2),
-#exam-table td:nth-child(2) {
-    left: 40px;
-}
-
-#exam-table thead th:nth-child(1),
-#exam-table thead th:nth-child(2) {
-    z-index: 25;
-    background-color: #34495e;
-}
-
-#exam-table td:nth-child(4),
-#exam-table th:nth-child(4),
-#exam-table td:nth-child(6),
-#exam-table th:nth-child(6),
-#exam-table td:nth-child(8),
-#exam-table th:nth-child(8),
-#exam-table td:nth-child(10),
-#exam-table th:nth-child(10),
-#exam-table td:nth-child(13),
-#exam-table th:nth-child(13),
-#exam-table td:nth-child(15),
-#exam-table th:nth-child(15),
-#exam-table td:nth-child(17),
-#exam-table th:nth-child(17),
-#exam-table td:nth-child(19),
-#exam-table th:nth-child(19),
-#exam-table td:nth-child(22),
-#exam-table th:nth-child(22),
-#exam-table td:nth-child(24),
-#exam-table th:nth-child(24),
-#exam-table td:nth-child(26),
-#exam-table th:nth-child(26),
-#exam-table td:nth-child(28),
-#exam-table th:nth-child(28),
-#exam-table td:nth-child(31),
-#exam-table th:nth-child(31),
-#exam-table td:nth-child(33),
-#exam-table th:nth-child(33),
-#exam-table td:nth-child(35),
-#exam-table th:nth-child(35),
-#exam-table td:nth-child(37),
-#exam-table th:nth-child(37) {
-    min-width: 50px;
-    width: 50px;
-}
-
-#global-stats {
-    display: flex;
-    justify-content: center;
-    gap: 50px;
-    padding: 10px 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 15px;
-    font-size: 13px;
-    font-weight: bold;
-}
-
-#global-stats .stat-item {
-    color: #2c3e50;
-}
-
-#global-stats #stat-total-remain {
-    color: #e74c3c;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Microsoft YaHei',Arial,sans-serif;}
+body{background-color:#f5f7fa;padding:20px;color:#333;height:100vh;overflow:hidden;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #3498db;height:80px;flex-shrink:0;}
+.header h1{color:#2c3e50;font-size:24px;}
+.control-panel{display:flex;gap:10px;align-items:center;}
+.control-group{display:flex;flex-direction:column;gap:5px;}
+.control-group label{font-size:12px;color:#7f8c8d;}
+.control-panel input,.control-panel select{padding:8px 12px;border-radius:4px;border:1px solid #bdc3c7;font-size:13px;}
+.control-panel input{width:120px;}
+.control-panel select{width:120px;background-color:white;}
+.btn-uniform{width:100px;height:36px;padding:0;font-size:13px;font-weight:bold;border-radius:4px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background-color 0.3s;}
+.btn-generate{background-color:#3498db;color:white;}
+.btn-generate:hover{background-color:#2980b9;}
+.btn-save{background-color:#2ecc71;color:white;}
+.btn-save:hover{background-color:#27ae60;}
+.btn-import{background-color:#e67e22;color:white;}
+.btn-import:hover{background-color:#d35400;}
+.btn-export{background-color:#9b59b6;color:white;}
+.btn-export:hover{background-color:#8e44ad;}
+.btn-quickfill{background-color:#1abc9c;color:white;}
+.btn-quickfill:hover{background-color:#16a085;}
+.button-container{display:flex;gap:8px;align-items:center;}
+.button-group-label{font-size:12px;color:#7f8c8d;margin-bottom:3px;}
+.file-upload-container{position:relative;}
+.file-upload-container input[type="file"]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.main-container{display:flex;gap:20px;height:calc(100vh - 120px);}
+.subject-panel{width:230px;background-color:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);padding:20px;display:flex;flex-direction:column;flex-shrink:0;padding-bottom:80px;}
+.panel-title{font-size:16px;font-weight:bold;margin-bottom:15px;color:#2c3e50;padding-bottom:10px;border-bottom:1px solid #ecf0f1;}
+.import-area{margin-bottom:20px;}
+.import-section{margin-bottom:15px;padding:10px;background-color:#f8f9fa;border-radius:4px;border:1px solid #e0e0e0;}
+.import-section h4{margin-bottom:8px;color:#2c3e50;font-size:13px;}
+.import-area textarea{width:100%;height:80px;padding:8px;border:1px solid #bdc3c7;border-radius:4px;font-size:12px;resize:vertical;margin-bottom:8px;}
+.import-area button{width:100%;padding:8px;background-color:#2ecc71;color:white;border:none;border-radius:4px;cursor:pointer;font-size:13px;transition:background-color 0.3s;margin-bottom:5px;}
+.import-area button:hover{background-color:#27ae60;}
+.filter-section{margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #ecf0f1;}
+.subject-list{flex-grow:1;overflow-y:auto;border:1px solid #ecf0f1;border-radius:4px;padding:10px;margin-bottom:50px;}
+.subject-item{display:flex;padding:8px 0;margin-bottom:8px;border-radius:4px;background-color:#f8f9fa;border-left:4px solid #3498db;font-size:13px;transition:all 0.3s;}
+.subject-item.status-complete{background-color:#d5f4e6;border-left-color:#27ae60;}
+.subject-item.status-warning{background-color:#fff3cd;border-left-color:#ffc107;}
+.subject-item.status-error{background-color:#f8d7da;border-left-color:#dc3545;}
+.subject-name{font-weight:500;}
+.subject-count{color:#7f8c8d;font-size:12px;}
+.status-arranged{color:#27ae60;font-size:11px;}
+.status-warning{color:#ffc107;font-size:11px;}
+.status-error{color:#dc3545;font-size:11px;}
+.arrangement-area{flex-grow:1;background-color:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);padding:20px;overflow:hidden;display:flex;flex-direction:column;min-width:0;}
+.table-container{position:fixed;top:180px;left:270px;right:190px;bottom:20px;overflow-x:auto;overflow-y:auto;border:1px solid #e0e0e0;border-radius:4px;background:#fff;z-index:10;}
+table{width:100%;border-collapse:separate;min-width:1200px;}
+thead{background-color:#34495e;color:white;position:sticky;top:0;z-index:20;}
+th,td{border:1px solid #bdc3c7;padding:6px 8px;text-align:center;font-size:12px;}
+th{font-weight:bold;}
+.exam-room-header{background-color:#2c3e50;}
+.time-period-header{background-color:#3498db;}
+.group-header{background-color:#2980b9;}
+.subject-drop{min-height:25px;min-width:50px;border:1px dashed #7f8c8d;border-radius:3px;padding:3px;background-color:#f8f9fa;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;position:relative;transition:all 0.2s;}
+.subject-dropped{background-color:#d5f4e6;border:1px solid #27ae60;}
+.remove-subject{position:absolute;top:-6px;right:-6px;width:16px;height:16px;background-color:#e74c3c;color:white;border-radius:50%;font-size:10px;display:none;justify-content:center;align-items:center;cursor:pointer;z-index:5;}
+.subject-dropped:hover .remove-subject{display:flex;}
+.subject-dropped .remove-subject:hover{background-color:#c0392b;}
+.count-input{width:100%;padding:5px;border:1px solid #bdc3c7;border-radius:3px;text-align:center;font-size:12px;}
+.count-input::-webkit-inner-spin-button,.count-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.count-input[type=number]{-moz-appearance:textfield;}
+.total-cell{background-color:#fcf3cf;font-weight:bold;font-size:12px;}
+.row-handle{cursor:move;color:#7f8c8d;text-align:center;width:30px;}
+tr.ui-sortable-helper{background-color:#e8f4fc;}
+.subject-library{width:160px;background-color:white;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);padding:20px;padding-bottom:80px;display:flex;flex-direction:column;flex-shrink:0;}
+.library-container{flex-grow:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:80px;}
+.library-item{padding:8px 6px;background-color:#ecf0f1;border-radius:4px;cursor:grab;text-align:center;border:1px solid #bdc3c7;transition:all 0.2s;font-size:12px;min-height:30px;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+.library-item:hover{background-color:#d6dbdf;transform:translateY(-2px);}
+.library-item.ui-draggable-dragging{opacity:0.9;box-shadow:0 4px 12px rgba(0,0,0,0.3);transform:scale(1.05);z-index:10000;}
+.lib-arranged-count{font-weight:bold;margin-left:6px;font-size:11px;}
+.lib-arranged-zero{background-color:#d5f4e6;}
+.lib-arranged-positive{background-color:#f8d7da;}
+.lib-arranged-negative{background-color:#fff3cd;}
+.status-indicator{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px;padding:10px;border-top:1px solid #ecf0f1;max-height:110px;overflow-y:auto;background:#fff;}
+.status-item{display:flex;align-items:center;gap:8px;font-size:12px;}
+.status-color{width:12px;height:12px;border-radius:2px;}
+.complete-color{background-color:#d5f4e6;border:1px solid #27ae60;}
+.warning-color{background-color:#fff3cd;border:1px solid #ffc107;}
+.error-color{background-color:#f8d7da;border:1px solid #dc3545;}
+.unarranged-color{background-color:#f8f9fa;border:1px dashed #7f8c8d;}
+.error-message{color:#e74c3c;font-size:12px;margin-top:5px;display:none;}
+.success-message{color:#27ae60;font-size:12px;margin-top:5px;display:none;}
+.filter-stats{font-size:12px;color:#7f8c8d;margin-top:5px;text-align:center;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:#f1f1f1;border-radius:4px;}
+::-webkit-scrollbar-thumb{background:#bdc3c7;border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:#95a5a6;}
+.subject-drop.highlight-drop{background-color:#e3f2fd;border-color:#3498db;border-style:solid;box-shadow:0 0 8px rgba(52,152,219,0.7);transform:scale(1.05);}
+.empty-message{text-align:center;color:#7f8c8d;padding:20px;font-style:italic;}
+.filter-dropdown{width:100%;padding:8px;border:1px solid #bdc3c7;border-radius:4px;font-size:12px;margin-bottom:10px;background-color:white;}
+.quick-fill-container{display:flex;align-items:center;gap:10px;margin-top:10px;}
+.quick-fill-hint{font-size:12px;color:#7f8c8d;flex-grow:1;}
+.center-quick-fill-btn{background-color:#1abc9c;color:white;border:none;border-radius:4px;padding:6px 12px;font-size:12px;font-weight:bold;cursor:pointer;transition:background-color 0.3s;white-space:nowrap;}
+.center-quick-fill-btn:hover{background-color:#16a085;}
+.filter-checkbox-container{margin-bottom:10px;font-size:12px;}
+#exam-table th:nth-child(1),#exam-table td:nth-child(1),#exam-table th:nth-child(2),#exam-table td:nth-child(2){position:sticky;left:0;z-index:15;background-color:#ecf0f1;min-width:40px;}
+#exam-table th:nth-child(2),#exam-table td:nth-child(2){left:40px;}
+#exam-table thead th:nth-child(1),#exam-table thead th:nth-child(2){z-index:25;background-color:#34495e;}
+#global-stats{display:flex;justify-content:center;gap:50px;padding:10px 20px;background-color:#ffffff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:15px;font-size:13px;font-weight:bold;}
+#global-stats .stat-item{color:#2c3e50;}
+#global-stats #stat-total-remain{color:#e74c3c;}
 </style>
 </head>
-
 <body>
-
-<div class="header">
-    <h1>学科编排系统</h1>
-
-    <div class="control-panel">
-        <div class="control-group">
-            <label for="max-room">考场数</label>
-            <input type="number" id="max-room" value="40" min="10" max="200">
-        </div>
-
-        <div class="control-group">
-            <div class="button-group-label">操作</div>
-            <div class="button-container">
-                <button id="generate-rooms" class="btn-uniform btn-generate">生成考场</button>
-                <button id="center-quick-fill" class="btn-uniform btn-quickfill">快速编排</button>
-                <button id="save-data" class="btn-uniform btn-save">备份数据</button>
-            </div>
-        </div>
-
-        <div class="control-group">
-            <div class="button-group-label">文件</div>
-            <div class="button-container">
-                <div class="file-upload-container">
-                    <button class="btn-uniform btn-import">还原数据</button>
-                    <input type="file" id="restore-file" accept=".json">
-                </div>
-                <button id="export-data" class="btn-uniform btn-export">导出Excel</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="quick-fill-container">
-    <div class="quick-fill-hint">
-        快速编排规则：每个考场只填充一个学科，上午小计不超过12人，下午小计不超过14人，只处理人数≥52的学科
-    </div>
-</div>
-
-<div id="global-stats">
-    <div class="stat-item">总人数：<span id="stat-total-count">0</span></div>
-    <div class="stat-item">第一天上午：<span id="stat-day1am-arranged">0</span></div>
-    <div class="stat-item">第一天下午：<span id="stat-day1pm-arranged">0</span></div>
-    <div class="stat-item">第二天上午：<span id="stat-day2am-arranged">0</span></div>
-    <div class="stat-item">第二天下午：<span id="stat-day2pm-arranged">0</span></div>
-    <div class="stat-item">剩余人数：<span id="stat-total-remain">0</span></div>
-</div>
-
+<div class="header"><h1>学科编排系统</h1>
+<div class="control-panel">
+<div class="control-group"><label for="max-room">考场数</label><input type="number" id="max-room" value="40" min="10" max="200"></div>
+<div class="control-group"><div class="button-group-label">操作</div><div class="button-container"><button id="generate-rooms" class="btn-uniform btn-generate">生成考场</button><button id="center-quick-fill" class="btn-uniform btn-quickfill">快速编排</button><button id="save-data" class="btn-uniform btn-save">备份数据</button></div></div>
+<div class="control-group"><div class="button-group-label">文件</div><div class="button-container"><div class="file-upload-container"><button class="btn-uniform btn-import">还原数据</button><input type="file" id="restore-file" accept=".json"></div><button id="export-data" class="btn-uniform btn-export">导出Excel</button></div></div>
+</div></div>
+<div class="quick-fill-container"><div class="quick-fill-hint">快速编排规则：每个考场只填充一个学科，上午小计不超过12人，下午小计不超过14人，只处理人数≥52的学科</div></div>
+<div id="global-stats"><div class="stat-item">总人数：<span id="stat-total-count">0</span></div><div class="stat-item">第一天上午：<span id="stat-day1am-arranged">0</span></div><div class="stat-item">第一天下午：<span id="stat-day1pm-arranged">0</span></div><div class="stat-item">第二天上午：<span id="stat-day2am-arranged">0</span></div><div class="stat-item">第二天下午：<span id="stat-day2pm-arranged">0</span></div><div class="stat-item">剩余人数：<span id="stat-total-remain">0</span></div></div>
 <div class="main-container">
-    <div class="subject-panel">
-        <div class="panel-title">学科管理</div>
-
-        <div class="import-area">
-            <div class="import-section">
-                <h4>导入学科数据</h4>
-                <p style="font-size:12px;margin-bottom:8px;color:#7f8c8d;">
-                    格式：学科 人数（每行一个）
-                </p>
-                <textarea id="subject-input" placeholder="例如：
-高数 120
-高语 100
-高英 90"></textarea>
-                <button id="import-subjects">导入学科</button>
-            </div>
-            <div class="error-message" id="import-error"></div>
-            <div class="success-message" id="import-success"></div>
-        </div>
-
-        <div class="filter-section">
-            <div class="panel-title" style="font-size:14px;">筛选学科</div>
-            <select class="filter-dropdown" id="left-filter-select">
-                <option value="all">全部学科</option>
-                <option value="preschool">幼教学科</option>
-                <option value="primary">小学学科</option>
-                <option value="junior">初中学科</option>
-                <option value="high">高中学科</option>
-                <option value="vocational">中职学科</option>
-            </select>
-            <div class="filter-stats" id="left-filter-stats">共 0 个学科</div>
-        </div>
-
-        <div class="panel-title">学科列表（按人数排序）</div>
-        <div class="subject-list" id="subject-list">
-            <div class="empty-message">暂无学科数据，请导入</div>
-        </div>
-    </div>
-
-    <div class="arrangement-area">
-        <div class="arrangement-header">
-            <div class="panel-title">考场编排表</div>
-            <div id="arrangement-stats" style="font-size:13px;color:#7f8c8d;">共 0 个考场</div>
-        </div>
-
-        <div class="table-container">
-            <table id="exam-table">
-                <thead>
-                    <tr>
-                        <th class="row-handle">拖动</th>
-                        <th class="exam-room-header">考场号</th>
-                        <th class="time-period-header" colspan="9">第一天上午</th>
-                        <th class="time-period-header" colspan="9">第一天下午</th>
-                        <th class="time-period-header" colspan="9">第二天上午</th>
-                        <th class="time-period-header" colspan="9">第二天下午</th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th>A</th>
-                        <th class="group-header" colspan="2">第1组</th>
-                        <th class="group-header" colspan="2">第2组</th>
-                        <th class="group-header" colspan="2">第3组</th>
-                        <th class="group-header" colspan="2">第4组</th>
-                        <th>J</th>
-                        <th class="group-header" colspan="2">第1组</th>
-                        <th class="group-header" colspan="2">第2组</th>
-                        <th class="group-header" colspan="2">第3组</th>
-                        <th class="group-header" colspan="2">第4组</th>
-                        <th>S</th>
-                        <th class="group-header" colspan="2">第1组</th>
-                        <th class="group-header" colspan="2">第2组</th>
-                        <th class="group-header" colspan="2">第3组</th>
-                        <th class="group-header" colspan="2">第4组</th>
-                        <th>AD</th>
-                        <th class="group-header" colspan="2">第1组</th>
-                        <th class="group-header" colspan="2">第2组</th>
-                        <th class="group-header" colspan="2">第3组</th>
-                        <th class="group-header" colspan="2">第4组</th>
-                        <th>AI</th>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th>考场号</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>小计</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>小计</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>小计</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>学科</th><th>人数</th>
-                        <th>小计</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="subject-library">
-        <div class="panel-title">学科列表</div>
-
-        <div class="filter-section">
-            <input type="text" id="right-search-input" placeholder="搜索学科名称..."
-                   style="width:100%;padding:6px;margin-bottom:8px;border:1px solid #bdc3c7;border-radius:4px;font-size:12px;">
-
-            <div class="filter-checkbox-container" style="margin-bottom:8px;">
-                <label>
-                    <input type="checkbox" id="right-filter-arranged-done"> 隐藏已编排完学科
-                </label>
-            </div>
-
-            <select class="filter-dropdown" id="right-filter-select">
-                <option value="all">全部学科</option>
-                <option value="preschool">幼教学科</option>
-                <option value="primary">小学学科</option>
-                <option value="junior">初中学科</option>
-                <option value="high">高中学科</option>
-                <option value="vocational">中职学科</option>
-            </select>
-            <div class="filter-stats" id="right-filter-stats">共 0 个学科</div>
-        </div>
-
-        <div class="library-container" id="library-container">
-            <div class="empty-message">暂无学科数据</div>
-        </div>
-    </div>
+<div class="subject-panel"><div class="panel-title">学科管理</div><div class="import-area"><div class="import-section"><h4>导入学科数据</h4><p style="font-size:12px;margin-bottom:8px;color:#7f8c8d;">格式：学科 人数（每行一个）</p><textarea id="subject-input" placeholder="例如：&#10;高数 120&#10;高语 100&#10;高英 90"></textarea><button id="import-subjects">导入学科</button></div><div class="error-message" id="import-error"></div><div class="success-message" id="import-success"></div></div><div class="filter-section"><div class="panel-title" style="font-size:14px;">筛选学科</div><select class="filter-dropdown" id="left-filter-select"><option value="all">全部学科</option><option value="preschool">幼教学科</option><option value="primary">小学学科</option><option value="junior">初中学科</option><option value="high">高中学科</option><option value="vocational">中职学科</option></select><div class="filter-stats" id="left-filter-stats">共 0 个学科</div></div><div class="panel-title">学科列表（按人数排序）</div><div class="subject-list" id="subject-list"><div class="empty-message">暂无学科数据，请导入</div></div></div>
+<div class="arrangement-area"><div class="arrangement-header"><div class="panel-title">考场编排表</div><div id="arrangement-stats" style="font-size:13px;color:#7f8c8d;">共 0 个考场</div></div><div class="table-container"><table id="exam-table"><thead><tr><th class="row-handle">拖动</th><th class="exam-room-header">考场号</th><th class="time-period-header" colspan="9">第一天上午</th><th class="time-period-header" colspan="9">第一天下午</th><th class="time-period-header" colspan="9">第二天上午</th><th class="time-period-header" colspan="9">第二天下午</th></tr><tr><th></th><th>A</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>J</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>S</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>AD</th><th class="group-header" colspan="2">第1组</th><th class="group-header" colspan="2">第2组</th><th class="group-header" colspan="2">第3组</th><th class="group-header" colspan="2">第4组</th><th>AI</th></tr><tr><th></th><th>考场号</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>学科</th><th>人数</th><th>小计</th></tr></thead><tbody id="table-body"></tbody></table></div></div>
+<div class="subject-library"><div class="panel-title">学科列表</div><div class="filter-section"><input type="text" id="right-search-input" placeholder="搜索学科名称..." style="width:100%;padding:6px;margin-bottom:8px;border:1px solid #bdc3c7;border-radius:4px;font-size:12px;"><div class="filter-checkbox-container" style="margin-bottom:8px;"><label><input type="checkbox" id="right-filter-arranged-done"> 隐藏已编排完学科</label></div><select class="filter-dropdown" id="right-filter-select"><option value="all">全部学科</option><option value="preschool">幼教学科</option><option value="primary">小学学科</option><option value="junior">初中学科</option><option value="high">高中学科</option><option value="vocational">中职学科</option></select><div class="filter-stats" id="right-filter-stats">共 0 个学科</div></div><div class="library-container" id="library-container"><div class="empty-message">暂无学科数据</div></div></div>
 </div>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-
 <script>
-/* ================= 全局变量 ================= */
 let subjects = [];
 let examRooms = [];
 let maxRooms = 60;
@@ -882,932 +134,449 @@ let activeLeftFilter = 'all';
 let activeRightFilter = 'all';
 let isDataLoaded = false;
 
-/* ================= 学科分类 ================= */
-const detectSubjectCategory = (subjectName) => {
-    if (subjectName.startsWith('幼')) return 'preschool';
-    if (subjectName.startsWith('小')) return 'primary';
-    if (subjectName.startsWith('初')) return 'junior';
-    if (subjectName.startsWith('高')) return 'high';
+const detectSubjectCategory = (name) => {
+    if(name.startsWith('幼')) return 'preschool';
+    if(name.startsWith('小')) return 'primary';
+    if(name.startsWith('初')) return 'junior';
+    if(name.startsWith('高')) return 'high';
     return 'vocational';
 };
 
-/* ================= 初始化 ================= */
-$(document).ready(function () {
-    subjects = [];
-    renderSubjectList();
-    renderSubjectLibrary();
-    bindEvents();
-    setTimeout(initDragAndDrop, 100);
-});
-
-/* ================= 学科列表 ================= */
-function renderSubjectList() {
-    const $list = $('#subject-list').empty();
-    if (subjects.length === 0) {
-        $list.html('<div class="empty-message">暂无学科数据，请导入</div>');
-        return;
-    }
-
-    const sortedSubjects = [...subjects].sort((a, b) => b.count - a.count);
-    const filteredSubjects = sortedSubjects.filter(
-        s => activeLeftFilter === 'all' || s.category === activeLeftFilter
-    );
-
-    $('#left-filter-stats').text(`共 ${filteredSubjects.length} 个学科`);
-
-    if (filteredSubjects.length === 0) {
-        $list.html('<div class="empty-message">没有符合条件的学科</div>');
-        return;
-    }
-
-    recalculateAllSubjects();
-
-    filteredSubjects.forEach(subject => {
-        const percent = subject.count > 0
-            ? Math.round((subject.arranged / subject.count) * 100)
-            : 0;
-
-        let statusClass = 'status-unarranged';
-        let itemClass = 'subject-item';
-
-        if (subject.count === 0) {
-            statusClass = 'status-unarranged';
-        } else if (subject.arranged > subject.count) {
-            statusClass = 'status-error';
-            itemClass += ' status-error';
-        } else if (subject.arranged === subject.count) {
-            statusClass = 'status-arranged';
-            itemClass += ' status-complete';
-        } else if (subject.arranged > 0) {
-            statusClass = 'status-warning';
-            itemClass += ' status-warning';
-        }
-
-        $list.append(`
-            <div class="${itemClass}" data-name="${subject.name}" data-category="${subject.category}">
-                <div style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:6px 0;">
-                    <div style="flex:2;min-width:0;">
-                        <span style="font-weight:bold;font-size:13px;">${subject.name}</span>
-                    </div>
-                    <div style="flex:1.5;text-align:center;">
-                        <span style="font-weight:bold;font-size:12px;">${subject.arranged}/${subject.count}</span>
-                    </div>
-                    <div style="flex:1;text-align:right;">
-                        <span style="font-size:12px;">${percent}%</span>
-                    </div>
-                </div>
-            </div>
-        `);
-    });
+function calculatePeriodTotal(groups){
+    let total=0;
+    groups.forEach(g=>{ if(g.subject && g.subject.trim()!=='') total+= (parseInt(g.count)||0); });
+    return total;
 }
-
-/* ================= 重新计算已编排人数 ================= */
-function recalculateAllSubjects() {
-    subjects.forEach(s => s.arranged = 0);
-    if (!isDataLoaded || examRooms.length === 0) return;
-
-    examRooms.forEach(room => {
-        ['day1am','day1pm','day2am','day2pm'].forEach(period => {
-            room[period].forEach(group => {
-                if (group.subject && group.subject.trim() !== '') {
-                    const sub = subjects.find(s => s.name === group.subject);
-                    if (sub) sub.arranged += parseInt(group.count) || 0;
+function recalculateAllSubjects(){
+    subjects.forEach(s=>s.arranged=0);
+    if(!isDataLoaded || !examRooms.length) return;
+    examRooms.forEach(room=>{
+        ['day1am','day1pm','day2am','day2pm'].forEach(p=>{
+            room[p].forEach(g=>{
+                if(g.subject && g.subject.trim()){
+                    let sub = subjects.find(s=>s.name===g.subject);
+                    if(sub) sub.arranged += parseInt(g.count)||0;
                 }
             });
         });
     });
 }
-
-/* ================= 右侧学科库 ================= */
-function renderSubjectLibrary() {
-    const $library = $('#library-container').empty();
-    const keyword = $('#right-search-input').val().toLowerCase().trim();
-
-    if (subjects.length === 0) {
-        $library.html('<div class="empty-message">暂无学科数据</div>');
-        return;
-    }
-
-    let list = [...subjects];
-
-    if (keyword) {
-        list = list.filter(s => s.name.toLowerCase().includes(keyword));
-    }
-
-    if (activeRightFilter !== 'all') {
-        list = list.filter(s => s.category === activeRightFilter);
-    }
-
-    if ($('#right-filter-arranged-done').is(':checked')) {
-        list = list.filter(s => s.arranged !== s.count);
-    }
-
+function renderSubjectList(){
+    const $list=$('#subject-list').empty();
+    if(!subjects.length){ $list.html('<div class="empty-message">暂无学科数据，请导入</div>'); $('#left-filter-stats').text('共 0 个学科'); return; }
+    let filtered=[...subjects].sort((a,b)=>b.count-a.count).filter(s=> activeLeftFilter==='all' || s.category===activeLeftFilter);
+    $('#left-filter-stats').text(`共 ${filtered.length} 个学科`);
+    if(!filtered.length){ $list.html('<div class="empty-message">没有符合条件的学科</div>'); return; }
+    filtered.forEach(sub=>{
+        let percent = sub.count>0 ? Math.round((sub.arranged/sub.count)*100) : 0;
+        let itemClass='subject-item';
+        if(sub.arranged>sub.count) itemClass+=' status-error';
+        else if(sub.arranged===sub.count) itemClass+=' status-complete';
+        else if(sub.arranged>0) itemClass+=' status-warning';
+        $list.append(`<div class="${itemClass}" data-name="${sub.name}"><div style="display:flex;justify-content:space-between;width:100%;padding:6px 0;"><div style="flex:2;"><span style="font-weight:bold;">${sub.name}</span></div><div style="flex:1.5;text-align:center;"><span>${sub.arranged}/${sub.count}</span></div><div style="flex:1;text-align:right;"><span>${percent}%</span></div></div></div>`);
+    });
+}
+function renderSubjectLibrary(){
+    const $lib=$('#library-container').empty();
+    let keyword=$('#right-search-input').val().toLowerCase().trim();
+    let list=[...subjects];
+    if(keyword) list=list.filter(s=>s.name.toLowerCase().includes(keyword));
+    if(activeRightFilter!=='all') list=list.filter(s=>s.category===activeRightFilter);
+    if($('#right-filter-arranged-done').is(':checked')) list=list.filter(s=>s.arranged!==s.count);
     $('#right-filter-stats').text(`共 ${list.length} 个学科`);
-
-    if (list.length === 0) {
-        $library.html('<div class="empty-message">没有符合条件的学科</div>');
-        return;
-    }
-
-    const byCat = { preschool:[], primary:[], junior:[], high:[], vocational:[] };
-    list.forEach(s => byCat[s.category].push(s));
-
-    const cats = [
-        { key:'high', name:'高中' },
-        { key:'junior', name:'初中' },
-        { key:'primary', name:'小学' },
-        { key:'preschool', name:'幼教' },
-        { key:'vocational', name:'中职' }
-    ];
-
-    cats.forEach(cat => {
-        const arr = byCat[cat.key];
-        if (arr.length === 0) return;
-
-        $library.append(`<div style="font-size:13px;margin:10px 0 5px;color:#7f8c8d;">${cat.name} (${arr.length})</div>`);
-
-        arr.forEach(subject => {
-            const diff = subject.arranged - subject.count;
-            let cls = 'library-item lib-arranged-negative';
-            if (diff === 0) cls = 'library-item lib-arranged-zero';
-            if (diff > 0) cls = 'library-item lib-arranged-positive';
-
-            $library.append(`
-                <div class="${cls}" data-name="${subject.name}" data-category="${subject.category}">
-                    ${subject.name}
-                    <span class="lib-arranged-count">${subject.count - subject.arranged}</span>
-                </div>
-            `);
+    if(!list.length){ $lib.html('<div class="empty-message">没有符合条件的学科</div>'); return; }
+    const byCat={preschool:[],primary:[],junior:[],high:[],vocational:[]};
+    list.forEach(s=>byCat[s.category].push(s));
+    const cats=[{key:'high',name:'高中'},{key:'junior',name:'初中'},{key:'primary',name:'小学'},{key:'preschool',name:'幼教'},{key:'vocational',name:'中职'}];
+    cats.forEach(cat=>{
+        if(!byCat[cat.key].length) return;
+        $lib.append(`<div style="font-size:13px;margin:10px 0 5px;color:#7f8c8d;">${cat.name} (${byCat[cat.key].length})</div>`);
+        byCat[cat.key].forEach(sub=>{
+            let cls='library-item lib-arranged-negative';
+            let diff=sub.count-sub.arranged;
+            if(diff===0) cls='library-item lib-arranged-zero';
+            else if(diff<0) cls='library-item lib-arranged-positive';
+            $lib.append(`<div class="${cls}" data-name="${sub.name}" data-category="${sub.category}">${sub.name}<span class="lib-arranged-count">${diff}</span></div>`);
         });
     });
-
-    setTimeout(initDragAndDrop, 100);
+    setTimeout(initDragAndDrop,50);
 }
-
-/* ================= 拖拽 ================= */
-function initDragAndDrop() {
-    $('.library-item').draggable({
-        helper: 'clone',
-        revert: 'invalid',
-        cursor: 'move',
-        zIndex: 10000,
-        start() { $(this).css('opacity','0.4'); $('.subject-drop').addClass('highlight-drop'); },
-        stop() { $(this).css('opacity','1'); $('.subject-drop').removeClass('highlight-drop'); }
-    });
-
-    $('.subject-drop').droppable({
-        accept: '.library-item',
-        tolerance: 'pointer',
-        hoverClass: 'ui-state-hover',
-        drop(e, ui) { dropSubject(ui.draggable.data('name'), $(this)); }
-    });
+function initDragAndDrop(){
+    $('.library-item').draggable({helper:'clone',revert:'invalid',cursor:'move',zIndex:10000,start(){ $('.subject-drop').addClass('highlight-drop'); },stop(){ $('.subject-drop').removeClass('highlight-drop'); }});
+    $('.subject-drop').droppable({accept:'.library-item',tolerance:'pointer',hoverClass:'ui-state-hover',drop(e,ui){ dropSubject(ui.draggable.data('name'), $(this)); }});
 }
-
-/* ================= 放置学科 ================= */
-function dropSubject(subjectName, $target) {
-    if ($target.hasClass('subject-dropped')) {
-        const old = $target.text().trim();
-        if (old === subjectName) return;
-        removeSubjectFromCell($target, old, false);
+function dropSubject(subjectName, $target){
+    let roomId=$target.data('room');
+    let period=$target.data('period');
+    let groupIdx=$target.data('group');
+    if(!roomId || period===undefined || groupIdx===undefined) return;
+    let room=examRooms.find(r=>r.id===roomId);
+    if(!room) return;
+    let oldSubject=room[period][groupIdx].subject;
+    if(oldSubject && oldSubject!==subjectName){
+        let oldSub=subjects.find(s=>s.name===oldSubject);
+        if(oldSub) oldSub.arranged -= (parseInt(room[period][groupIdx].count)||0);
     }
-
+    room[period][groupIdx].subject=subjectName;
+    let newSub=subjects.find(s=>s.name===subjectName);
+    if(newSub) newSub.arranged += (parseInt(room[period][groupIdx].count)||0);
     $target.text(subjectName).addClass('subject-dropped');
-    if ($target.find('.remove-subject').length === 0) {
-        $target.append('<div class="remove-subject">×</div>');
-    }
-
-    const roomId = $target.data('room');
-    const period = $target.data('period');
-    const groupIndex = $target.data('group');
-
-    if (roomId && period !== undefined && groupIndex !== undefined) {
-        examRooms[roomId - 1][period][groupIndex].subject = subjectName;
-    }
-
+    if($target.find('.remove-subject').length===0) $target.append('<div class="remove-subject">×</div>');
     recalculateAllSubjects();
     renderSubjectList();
     renderSubjectLibrary();
-    updateRowTotal($target.closest('tr'));
+    updateRowTotalByRoomId(roomId);
     updateGlobalStats();
 }
-
-/* ================= 生成考场 ================= */
-function generateExamRooms() {
-    const $tbody = $('#table-body').empty();
-    maxRooms = parseInt($('#max-room').val()) || 60;
-
-    if (maxRooms < 1) {
-        showError('请输入有效的考场号');
-        return false;
+function removeSubjectFromCell($cell, subjectName){
+    let roomId=$cell.data('room');
+    let period=$cell.data('period');
+    let groupIdx=$cell.data('group');
+    if(roomId && period!==undefined && groupIdx!==undefined){
+        let room=examRooms.find(r=>r.id===roomId);
+        if(room && room[period]){
+            let sub=subjects.find(s=>s.name===room[period][groupIdx].subject);
+            if(sub) sub.arranged -= (parseInt(room[period][groupIdx].count)||0);
+            room[period][groupIdx].subject='';
+            room[period][groupIdx].count=0;
+            let $input=$(`.count-input[data-room="${roomId}"][data-period="${period}"][data-group="${groupIdx}"]`);
+            if($input.length) $input.val(0);
+        }
     }
-
-    examRooms = [];
-    for (let i = 1; i <= maxRooms; i++) {
-        examRooms.push({
-            id: i,
-            day1am: Array(4).fill().map(() => ({ subject:'', count:0 })),
-            day1pm: Array(4).fill().map(() => ({ subject:'', count:0 })),
-            day2am: Array(4).fill().map(() => ({ subject:'', count:0 })),
-            day2pm: Array(4).fill().map(() => ({ subject:'', count:0 }))
+    $cell.text('').removeClass('subject-dropped').find('.remove-subject').remove();
+    recalculateAllSubjects();
+    renderSubjectList();
+    renderSubjectLibrary();
+    if(roomId) updateRowTotalByRoomId(roomId);
+    updateGlobalStats();
+}
+function updateRowTotalByRoomId(roomId){
+    let room=examRooms.find(r=>r.id===roomId);
+    if(!room) return;
+    let $row=$(`tr[data-room-id="${roomId}"]`);
+    if($row.length){
+        $row.find('.day1am-total').text(calculatePeriodTotal(room.day1am));
+        $row.find('.day1pm-total').text(calculatePeriodTotal(room.day1pm));
+        $row.find('.day2am-total').text(calculatePeriodTotal(room.day2am));
+        $row.find('.day2pm-total').text(calculatePeriodTotal(room.day2pm));
+    }
+}
+function updateGlobalStats(){
+    if(!isDataLoaded || !examRooms.length){ $('#stat-total-count').text(0); $('#stat-total-remain').text(0); $('#stat-day1am-arranged').text(0); $('#stat-day1pm-arranged').text(0); $('#stat-day2am-arranged').text(0); $('#stat-day2pm-arranged').text(0); return; }
+    let total=subjects.reduce((s,x)=>s+x.count,0), arranged=0;
+    let sums={day1am:0,day1pm:0,day2am:0,day2pm:0};
+    examRooms.forEach(r=>{
+        ['day1am','day1pm','day2am','day2pm'].forEach(p=>{
+            let sum=0;
+            r[p].forEach(g=>{ if(g.subject && g.subject.trim()) sum+=parseInt(g.count)||0; });
+            sums[p]+=sum; arranged+=sum;
         });
-    }
-
-    examRooms.forEach((room, i) => {
-        const id = i + 1;
-        const row = $(`
-            <tr data-room-id="${id}">
+    });
+    $('#stat-day1am-arranged').text(sums.day1am);
+    $('#stat-day1pm-arranged').text(sums.day1pm);
+    $('#stat-day2am-arranged').text(sums.day2am);
+    $('#stat-day2pm-arranged').text(sums.day2pm);
+    $('#stat-total-count').text(total);
+    $('#stat-total-remain').text(Math.max(0,total-arranged));
+}
+function renderExamTable(){
+    const $tbody=$('#table-body').empty();
+    if(!examRooms.length){ $('#arrangement-stats').text(`共 0 个考场`); isDataLoaded=false; return; }
+    examRooms.forEach((room,idx)=>{
+        let displayNo=idx+1;
+        let row=$(`
+            <tr data-room-id="${room.id}">
                 <td class="row-handle">≡</td>
-                <td>${id}</td>
-                ${generateGroupCells(room.day1am, 'day1am', id)}
+                <td>${displayNo}</td>
+                ${generateGroupCells(room.day1am,'day1am',room.id)}
                 <td class="total-cell day1am-total">${calculatePeriodTotal(room.day1am)}</td>
-                ${generateGroupCells(room.day1pm, 'day1pm', id)}
+                ${generateGroupCells(room.day1pm,'day1pm',room.id)}
                 <td class="total-cell day1pm-total">${calculatePeriodTotal(room.day1pm)}</td>
-                ${generateGroupCells(room.day2am, 'day2am', id)}
+                ${generateGroupCells(room.day2am,'day2am',room.id)}
                 <td class="total-cell day2am-total">${calculatePeriodTotal(room.day2am)}</td>
-                ${generateGroupCells(room.day2pm, 'day2pm', id)}
+                ${generateGroupCells(room.day2pm,'day2pm',room.id)}
                 <td class="total-cell day2pm-total">${calculatePeriodTotal(room.day2pm)}</td>
             </tr>
         `);
-        $('#table-body').append(row);
+        $tbody.append(row);
     });
-
-    $('#arrangement-stats').text(`共 ${maxRooms} 个考场`);
-
-    $('#table-body').sortable({
-        handle: '.row-handle',
-        axis: 'y',
-        opacity: 0.7,
-        helper(e, tr) {
-            const $o = tr.children();
-            const $h = tr.clone();
-            $h.children().each((i, el) => $(el).width($o.eq(i).width()));
-            return $h;
-        },
-        update: function () {
-            updateRoomNumbers();
-            syncExamRoomsOrder(); // ✅ 修复：同步数组顺序
-        }
-    }).disableSelection();
-
-    isDataLoaded = true;
-    updateGlobalStats();
-    return true;
+    $('#arrangement-stats').text(`共 ${examRooms.length} 个考场`);
+    isDataLoaded=true;
+    initSortableAndDroppable();
+    setTimeout(initDragAndDrop,100);
 }
-
-/* ✅ 新增：同步 examRooms 顺序 */
-function syncExamRoomsOrder() {
-    const newRooms = [];
-    $('#table-body tr').each(function () {
-        const id = parseInt($(this).data('room-id'));
-        const room = examRooms.find(r => r.id === id);
-        if (room) newRooms.push(room);
-    });
-    examRooms = newRooms;
-}
-
-function generateGroupCells(groups, period, roomId) {
-    let html = '';
-    groups.forEach((g, i) => {
-        const has = g.subject && g.subject.trim() !== '';
-        html += `
-            <td>
-                <div class="subject-drop ${has?'subject-dropped':''}"
-                     data-room="${roomId}"
-                     data-period="${period}"
-                     data-group="${i}">
-                    ${g.subject||''}
-                    ${has?'<div class="remove-subject">×</div>':''}
-                </div>
-            </td>
-            <td>
-                <input type="number" class="count-input"
-                       data-room="${roomId}"
-                       data-period="${period}"
-                       data-group="${i}"
-                       value="${g.count||0}"
-                       min="0" step="1">
-            </td>
-        `;
+function generateGroupCells(groups,period,roomId){
+    let html='';
+    groups.forEach((g,i)=>{
+        let has=g.subject && g.subject.trim()!=='';
+        html+=`<td><div class="subject-drop ${has?'subject-dropped':''}" data-room="${roomId}" data-period="${period}" data-group="${i}">${g.subject||''}${has?'<div class="remove-subject">×</div>':''}</div></td>`;
+        html+=`<td><input type="number" class="count-input" data-room="${roomId}" data-period="${period}" data-group="${i}" value="${g.count||0}" min="0" step="1"></td>`;
     });
     return html;
 }
-
-/* ================= 删除学科 ================= */
-function removeSubjectFromCell($cell, subjectName, updateRender = true) {
-    $cell.text('').removeClass('subject-dropped');
-    $cell.find('.remove-subject').remove();
-
-    const roomId = $cell.data('room');
-    const period = $cell.data('period');
-    const groupIndex = $cell.data('group');
-
-    if (roomId && period !== undefined && groupIndex !== undefined) {
-        const room = examRooms[roomId - 1];
-        if (room && room[period]) {
-            room[period][groupIndex].subject = '';
-            room[period][groupIndex].count = 0; // ✅ 修复空字符串
-        }
-
-        const $input = $(`.count-input[data-room="${roomId}"][data-period="${period}"][data-group="${groupIndex}"]`);
-        if ($input.length) $input.val(0);
-    }
-
-    recalculateAllSubjects();
-
-    if (updateRender) {
-        renderSubjectList();
-        renderSubjectLibrary();
-        updateRowTotal($cell.closest('tr'));
-        updateGlobalStats();
-    }
-}
-
-/* ================= 行总计 ================= */
-function updateRowTotal($row) {
-    const roomId = $row.data('room-id');
-    const room = examRooms[roomId - 1];
-    if (!room) return;
-
-    $row.find('.day1am-total').text(calculatePeriodTotal(room.day1am));
-    $row.find('.day1pm-total').text(calculatePeriodTotal(room.day1pm));
-    $row.find('.day2am-total').text(calculatePeriodTotal(room.day2am));
-    $row.find('.day2pm-total').text(calculatePeriodTotal(room.day2pm));
-}
-
-function calculatePeriodTotal(groups) {
-    let total = 0;
-    groups.forEach(g => {
-        if (g.subject && g.subject.trim() !== '') {
-            total += parseInt(g.count) || 0;
-        }
-    });
-    return total;
-}
-
-/* ================= 行号重排 ================= */
-function updateRoomNumbers() {
-    $('#table-body tr').each(function (index) {
-        const n = index + 1;
-        $(this).find('td').eq(1).text(n);
-        $(this).data('room-id', n);
-        $(this).find('.subject-drop, .count-input').each(function () {
-            $(this).data('room', n);
-        });
-    });
-}
-
-/* ================= 全局统计 ================= */
-function updateGlobalStats() {
-    if (!isDataLoaded || examRooms.length === 0) {
-        $('#stat-total-count').text(0);
-        $('#stat-total-remain').text(0);
-        $('#stat-day1am-arranged').text(0);
-        $('#stat-day1pm-arranged').text(0);
-        $('#stat-day2am-arranged').text(0);
-        $('#stat-day2pm-arranged').text(0);
-        return;
-    }
-
-    const total = subjects.reduce((s, x) => s + x.count, 0);
-    let arranged = 0;
-
-    const periods = ['day1am','day1pm','day2am','day2pm'];
-    periods.forEach(p => {
-        let sum = 0;
-        examRooms.forEach(r => {
-            r[p].forEach(g => {
-                if (g.subject && g.subject.trim() !== '') {
-                    sum += parseInt(g.count) || 0;
-                }
+function initSortableAndDroppable(){
+    $('#table-body').sortable({
+        handle:'.row-handle',
+        axis:'y',
+        opacity:0.7,
+        helper:function(e,tr){
+            let $o=tr.children();
+            let $h=tr.clone();
+            $h.children().each((i,el)=>$(el).width($o.eq(i).width()));
+            return $h;
+        },
+        update:function(){
+            let newOrder=[];
+            $('#table-body tr').each(function(){
+                let roomId=$(this).data('room-id');
+                if(roomId) newOrder.push(roomId);
             });
-        });
-        $(`#stat-${p}-arranged`).text(sum);
-        arranged += sum;
-    });
-
-    $('#stat-total-count').text(total);
-    $('#stat-total-remain').text(Math.max(0, total - arranged));
+            let newExamRooms=[];
+            newOrder.forEach(id=>{
+                let room=examRooms.find(r=>r.id===id);
+                if(room) newExamRooms.push(room);
+            });
+            if(newExamRooms.length===examRooms.length){
+                examRooms=newExamRooms;
+                renderExamTable();
+            }
+        }
+    }).disableSelection();
+    $('.subject-drop').droppable({accept:'.library-item',tolerance:'pointer',hoverClass:'ui-state-hover',drop(e,ui){ dropSubject(ui.draggable.data('name'), $(this)); }});
 }
-
-/* ================= 事件绑定 ================= */
-function bindEvents() {
-    $('#import-subjects').on('click', function () {
-        const txt = $('#subject-input').val().trim();
-        if (!txt) { showError('请输入学科数据'); return; }
-
-        const lines = txt.split('\n');
-        const newSubs = [];
-
-        for (const line of lines) {
-            const l = line.trim();
-            if (!l) continue;
-            const p = l.split(/\s+/);
-            if (p.length < 2) {
-                showError(`格式错误: "${line}"`);
-                return;
-            }
-            const name = p[0];
-            const cnt = parseInt(p[1]);
-            if (isNaN(cnt) || cnt <= 0) {
-                showError(`人数错误: "${p[1]}"`);
-                return;
-            }
-            newSubs.push({ name, count: cnt, arranged: 0, category: detectSubjectCategory(name) });
-        }
-
-        subjects = newSubs;
-        renderSubjectList();
-        renderSubjectLibrary();
-        clearError();
-        showSuccess(`成功导入 ${subjects.length} 个学科`);
-
-        $('.subject-drop').text('').removeClass('subject-dropped');
-        $('.subject-drop .remove-subject').remove();
-        $('.count-input').val(0);
-        $('.total-cell').text('0');
-
-        updateGlobalStats();
-    });
-
-    $('#generate-rooms').on('click', function () {
-        if (subjects.length === 0) {
-            showError('请先导入学科数据');
-            return;
-        }
-        if (generateExamRooms()) {
-            showSuccess(`成功生成 ${maxRooms} 个考场`);
-        }
-    });
-
-    $(document).on('input', '.count-input', function () {
-        let val = parseInt($(this).val()) || 0;
-        if (val < 0) val = 0; // ✅ 防负数
-        $(this).val(val);
-
-        if (!isDataLoaded) return;
-        const $input = $(this);
-        const room = examRooms[$input.data('room') - 1];
-        if (room && room[$input.data('period')]) {
-            room[$input.data('period')][$input.data('group')].count = val;
-        }
-        recalculateAllSubjects();
-        renderSubjectList();
-        renderSubjectLibrary();
-        updateRowTotal($input.closest('tr'));
-        updateGlobalStats();
-    });
-
-    $(document).on('click', '.remove-subject', function (e) {
-        e.stopPropagation();
-        const $cell = $(this).closest('.subject-drop');
-        removeSubjectFromCell($cell, $cell.text().trim(), true);
-    });
-
-    $('#save-data').on('click', function () {
-        saveData();
-    });
-
-    $('#export-data').on('click', exportToExcel);
-
-    $('#center-quick-fill').on('click', function () {
-        if (!isDataLoaded) {
-            showError('请先生成考场表格');
-            return;
-        }
-        if (subjects.length === 0) {
-            showError('请先导入学科数据');
-            return;
-        }
-        quickFillSubjects();
-    });
-
-    $('#restore-file').on('change', function () {
-        const file = this.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            try {
-                const d = JSON.parse(e.target.result);
-                if (!d.subjects || !d.examRooms) {
-                    showError('文件格式不正确');
-                    return;
-                }
-                restoreData(d);
-                showSuccess(`数据已恢复，保存时间：${d.saveTime || '未知'}`);
-            } catch {
-                showError('解析JSON失败');
-            }
-        };
-        reader.readAsText(file);
-    });
-
-    $('#left-filter-select').on('change', function () {
-        activeLeftFilter = $(this).val();
-        renderSubjectList();
-    });
-
-    $('#right-filter-select').on('change', function () {
-        activeRightFilter = $(this).val();
-        renderSubjectLibrary();
-    });
-
-    $('#right-filter-arranged-done').on('change', function () {
-        renderSubjectLibrary();
-    });
-
-    $('#right-search-input').on('input', function () {
-        renderSubjectLibrary();
-    });
-
-    $('#max-room').on('change', function () {
-        let v = parseInt($(this).val());
-        if (v < 1) $(this).val(1);
-        if (v > 200) $(this).val(200);
-    });
-}
-
-/* ================= 快速编排（已修复DOM同步问题） ================= */
-function quickFillSubjects() {
-    if (!isDataLoaded || examRooms.length === 0) {
-        showError('请先生成考场');
-        return;
-    }
-
-    const pool = subjects
-        .filter(s => s.count >= 50 && s.arranged < s.count)
-        .sort((a, b) => b.count - a.count);
-
-    if (pool.length === 0) {
-        showError('没有可快速编排的学科（人数≥50 且未编排完）');
-        return;
-    }
-
-    const order = ['preschool', 'primary', 'junior', 'high', 'vocational'];
-    let filledRooms = 0;
-
-    for (const room of examRooms) {
-        let roomUsed = 0;
-        let hasSubject = false;
-        ['day1am','day1pm','day2am','day2pm'].forEach(p => {
-            room[p].forEach(g => { if (g.subject) hasSubject = true; });
+function generateExamRooms(){
+    let count=parseInt($('#max-room').val());
+    if(count<1 || isNaN(count)){ showError('考场数无效'); return false; }
+    maxRooms=count;
+    examRooms=[];
+    for(let i=1;i<=maxRooms;i++){
+        examRooms.push({
+            id:i,
+            day1am:Array(4).fill().map(()=>({subject:'',count:0})),
+            day1pm:Array(4).fill().map(()=>({subject:'',count:0})),
+            day2am:Array(4).fill().map(()=>({subject:'',count:0})),
+            day2pm:Array(4).fill().map(()=>({subject:'',count:0}))
         });
-        if (hasSubject) continue;
-
-        let subject = null;
-        for (const cat of order) {
-            subject = pool.find(s => s.category === cat && s.arranged < s.count);
-            if (subject) break;
-        }
-        if (!subject) break;
-
-        const slots = [
-            { period: 'day1am', max: 12 },
-            { period: 'day1pm', max: 14 },
-            { period: 'day2am', max: 12 },
-            { period: 'day2pm', max: 14 }
-        ];
-
-        let remain = subject.count - subject.arranged;
-        if (remain <= 0) continue;
-
-        for (const s of slots) {
-            if (roomUsed >= 50) break;
-            if (remain <= 0) break;
-
-            const take = Math.min(remain, s.max, 50 - roomUsed);
-            if (take <= 0) continue;
-
-            room[s.period][0].subject = subject.name;
-            room[s.period][0].count = take;
-            subject.arranged += take;
-            roomUsed += take;
-            remain -= take;
-        }
-
-        // ✅ 修复：同步数据到DOM
-        syncQuickFillToDOM(room);
-        
-        updateRowTotal($(`tr[data-room-id="${room.id}"]`));
-        filledRooms++;
     }
-
+    renderExamTable();
     recalculateAllSubjects();
     renderSubjectList();
     renderSubjectLibrary();
     updateGlobalStats();
-
-    if (filledRooms > 0) {
-        showSuccess(`快速编排完成，共填充 ${filledRooms} 个考场`);
-    } else {
-        showError('没有可填充的空考场');
-    }
+    showSuccess(`成功生成 ${maxRooms} 个考场`);
+    return true;
 }
-
-// ✅ 新增：同步快速编排结果到DOM的函数
-function syncQuickFillToDOM(room) {
-    const $row = $(`tr[data-room-id="${room.id}"]`);
-    if (!$row.length) return;
-
-    ['day1am', 'day1pm', 'day2am', 'day2pm'].forEach(period => {
-        room[period].forEach((g, idx) => {
-            const $cell = $row.find(
-                `.subject-drop[data-period="${period}"][data-group="${idx}"]`
-            );
-            const $input = $row.find(
-                `.count-input[data-period="${period}"][data-group="${idx}"]`
-            );
-
-            if ($cell.length && $input.length) {
-                if (g.subject && g.subject.trim() !== '') {
-                    $cell.text(g.subject)
-                         .addClass('subject-dropped');
-                    
-                    if ($cell.find('.remove-subject').length === 0) {
-                        $cell.append('<div class="remove-subject">×</div>');
-                    }
-                } else {
-                    $cell.text('').removeClass('subject-dropped');
-                    $cell.find('.remove-subject').remove();
+function quickFillSubjects(){
+    if(!isDataLoaded || !examRooms.length){ showError('请先生成考场'); return; }
+    let pool=subjects.filter(s=>s.count>=52 && s.arranged<s.count).sort((a,b)=>b.count-a.count);
+    if(!pool.length){ showError('没有可快速编排的学科（人数≥52 且未编排完）'); return; }
+    const order=['preschool','primary','junior','high','vocational'];
+    let filled=0;
+    for(let room of examRooms){
+        let hasSubject=false;
+        ['day1am','day1pm','day2am','day2pm'].forEach(p=>{ room[p].forEach(g=>{ if(g.subject) hasSubject=true; }); });
+        if(hasSubject) continue;
+        let target=null;
+        for(let cat of order){ target=pool.find(s=>s.category===cat && s.arranged<s.count); if(target) break; }
+        if(!target) break;
+        let slots=[{period:'day1am',max:12},{period:'day1pm',max:14},{period:'day2am',max:12},{period:'day2pm',max:14}];
+        let remain=target.count-target.arranged;
+        let roomUsed=0;
+        for(let s of slots){
+            if(roomUsed>=50 || remain<=0) break;
+            let take=Math.min(remain,s.max,50-roomUsed);
+            if(take<=0) continue;
+            room[s.period][0].subject=target.name;
+            room[s.period][0].count=take;
+            target.arranged+=take;
+            roomUsed+=take;
+            remain-=take;
+        }
+        syncQuickFillToDOM(room);
+        updateRowTotalByRoomId(room.id);
+        filled++;
+    }
+    recalculateAllSubjects();
+    renderSubjectList();
+    renderSubjectLibrary();
+    updateGlobalStats();
+    showSuccess(filled?`快速编排完成，填充 ${filled} 个考场`:'没有可填充的空考场');
+}
+function syncQuickFillToDOM(room){
+    let $row=$(`tr[data-room-id="${room.id}"]`);
+    if(!$row.length) return;
+    ['day1am','day1pm','day2am','day2pm'].forEach(p=>{
+        room[p].forEach((g,idx)=>{
+            let $cell=$row.find(`.subject-drop[data-period="${p}"][data-group="${idx}"]`);
+            let $input=$row.find(`.count-input[data-period="${p}"][data-group="${idx}"]`);
+            if($cell.length && $input.length){
+                if(g.subject && g.subject.trim()){
+                    $cell.text(g.subject).addClass('subject-dropped');
+                    if($cell.find('.remove-subject').length===0) $cell.append('<div class="remove-subject">×</div>');
+                }else{
+                    $cell.text('').removeClass('subject-dropped').find('.remove-subject').remove();
                 }
-                
-                $input.val(g.count || 0);
+                $input.val(g.count||0);
             }
         });
     });
 }
-
-/* ================= 保存 / 还原 ================= */
-/* ================= 保存 / 还原 ================= */
-function saveData() {
-    if (subjects.length === 0 && examRooms.length === 0) {
-        showError('没有数据可保存');
-        return;
-    }
-
-    const data = {
-        maxRooms: maxRooms,
-        subjects: subjects,
-        examRooms: examRooms,
-        saveTime: new Date().toLocaleString(),
-        isDataLoaded: isDataLoaded
-    };
-
-    const str = JSON.stringify(data, null, 2);
-    const uri = 'data:application/json;charset=utf-8,' + encodeURIComponent(str);
-    const a = document.createElement('a');
-    a.href = uri;
-    
-    // ✅ 修改：文件名包含年月日时间
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    
-    // 格式：考场编排保存_YYYYMMDD_HHMMSS.json
-    a.download = `考场编排保存_${year}${month}${day}_${hours}${minutes}${seconds}.json`;
+function saveData(){
+    if(!subjects.length && !examRooms.length){ showError('没有数据可保存'); return; }
+    let data={maxRooms,subjects,examRooms,saveTime:new Date().toLocaleString(),isDataLoaded};
+    let str=JSON.stringify(data,null,2);
+    let a=document.createElement('a');
+    let now=new Date();
+    let fn=`考场编排保存_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}.json`;
+    a.href='data:application/json;charset=utf-8,'+encodeURIComponent(str);
+    a.download=fn;
     a.click();
-
     showSuccess(`数据已保存，共${subjects.length}个学科，${examRooms.length}个考场`);
 }
-
-function restoreData(savedData) {
-    subjects = savedData.subjects || [];
-    maxRooms = savedData.maxRooms || 60;
+function restoreData(saved){
+    subjects=saved.subjects||[];
+    maxRooms=saved.maxRooms||60;
     $('#max-room').val(maxRooms);
-
-    if (savedData.examRooms && savedData.examRooms.length > 0) {
-        $('#table-body').empty();
-        examRooms = savedData.examRooms;
-
-        examRooms.forEach((room, i) => {
-            const id = i + 1;
-            const row = $(`
-                <tr data-room-id="${id}">
-                    <td class="row-handle">≡</td>
-                    <td>${id}</td>
-                    ${generateGroupCells(room.day1am, 'day1am', id)}
-                    <td class="total-cell day1am-total">${calculatePeriodTotal(room.day1am)}</td>
-                    ${generateGroupCells(room.day1pm, 'day1pm', id)}
-                    <td class="total-cell day1pm-total">${calculatePeriodTotal(room.day1pm)}</td>
-                    ${generateGroupCells(room.day2am, 'day2am', id)}
-                    <td class="total-cell day2am-total">${calculatePeriodTotal(room.day2am)}</td>
-                    ${generateGroupCells(room.day2pm, 'day2pm', id)}
-                    <td class="total-cell day2pm-total">${calculatePeriodTotal(room.day2pm)}</td>
-                </tr>
-            `);
-            $('#table-body').append(row);
-        });
-
-        $('#arrangement-stats').text(`共 ${examRooms.length} 个考场`);
-
-        $('#table-body').sortable({
-            handle: '.row-handle',
-            axis: 'y',
-            opacity: 0.7,
-            helper(e, tr) {
-                const $o = tr.children();
-                const $h = tr.clone();
-                $h.children().each((i, el) => $(el).width($o.eq(i).width()));
-                return $h;
-            },
-            update: function () {
-                updateRoomNumbers();
-                syncExamRoomsOrder();
-            }
-        }).disableSelection();
-
-        isDataLoaded = true;
+    if(saved.examRooms && saved.examRooms.length){
+        examRooms=saved.examRooms;
+        renderExamTable();
         recalculateAllSubjects();
         renderSubjectList();
         renderSubjectLibrary();
         updateGlobalStats();
-    } else {
-        isDataLoaded = false;
+        isDataLoaded=true;
+    }else{
+        examRooms=[];
+        renderExamTable();
+        isDataLoaded=false;
     }
 }
-
-/* ================= Excel 导出 ================= */
-function exportToExcel() {
-    if (!isDataLoaded || examRooms.length === 0) {
-        showError('请先生成考场表格');
-        return;
-    }
-
-    try {
-        const wb = XLSX.utils.book_new();
-        wb.Props = {
-            Title: "考场编排表",
-            Subject: "考场编排数据",
-            Author: "考场编排系统",
-            CreatedDate: new Date()
+function exportToExcel(){
+    if(!isDataLoaded || !examRooms.length){ showError('请先生成考场表格'); return; }
+    let wb=XLSX.utils.book_new();
+    let data=[];
+    data.push(['考场编排表']);
+    let row2=['拖动','考场号'];
+    for(let i=0;i<36;i++) row2.push('');
+    data.push(row2);
+    let row3=['','A','第1组','','第2组','','第3组','','第4组','','J','第1组','','第2组','','第3组','','第4组','','S','第1组','','第2组','','第3组','','第4组','','AD','第1组','','第2组','','第3组','','第4组','','AI'];
+    data.push(row3);
+    let row4=['','考场号'];
+    for(let i=0;i<4;i++) row4.push('学科','人数');
+    row4.push('小计');
+    for(let i=0;i<4;i++) row4.push('学科','人数');
+    row4.push('小计');
+    for(let i=0;i<4;i++) row4.push('学科','人数');
+    row4.push('小计');
+    for(let i=0;i<4;i++) row4.push('学科','人数');
+    row4.push('小计');
+    data.push(row4);
+    examRooms.forEach((room,idx)=>{
+        let row=['',idx+1];
+        let pushPeriod=(p)=>{
+            p.forEach(g=>{ row.push(g.subject||''); row.push(g.count||0); });
+            row.push(calculatePeriodTotal(p));
         };
-
-        const data = [];
-        
-        // ✅ 修复1：完整的表头结构
-        // 第1行：标题
-        data.push(['考场编排表']);
-        
-        // 第2行：时间段标题（合并单元格用）
-        const headerRow2 = ['拖动', '考场号'];
-        // 第一天上午
-        for (let i = 0; i < 9; i++) headerRow2.push(''); // 为"第一天上午"预留位置
-        // 第一天下午
-        for (let i = 0; i < 9; i++) headerRow2.push(''); // 为"第一天下午"预留位置
-        // 第二天上午
-        for (let i = 0; i < 9; i++) headerRow2.push(''); // 为"第二天上午"预留位置
-        // 第二天下午
-        for (let i = 0; i < 9; i++) headerRow2.push(''); // 为"第二天下午"预留位置
-        data.push(headerRow2);
-        
-        // 第3行：组标题
-        const headerRow3 = ['', 'A'];
-        // 第一天上午
-        headerRow3.push('第1组','','第2组','','第3组','','第4组','','J');
-        // 第一天下午
-        headerRow3.push('第1组','','第2组','','第3组','','第4组','','S');
-        // 第二天上午
-        headerRow3.push('第1组','','第2组','','第3组','','第4组','','AD');
-        // 第二天下午
-        headerRow3.push('第1组','','第2组','','第3组','','第4组','','AI');
-        data.push(headerRow3);
-        
-        // 第4行：详细表头
-        const headerRow4 = ['', '考场号'];
-        // 第一天上午
-        for (let i = 0; i < 4; i++) {
-            headerRow4.push('学科', '人数');
+        pushPeriod(room.day1am);
+        pushPeriod(room.day1pm);
+        pushPeriod(room.day2am);
+        pushPeriod(room.day2pm);
+        data.push(row);
+    });
+    let ws=XLSX.utils.aoa_to_sheet(data);
+    ws['!cols']=[{wch:5},{wch:8},...Array(36).fill({wch:7}),{wch:6},{wch:6},{wch:6},{wch:6}];
+    ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:37}},{s:{r:1,c:2},e:{r:1,c:10}},{s:{r:1,c:11},e:{r:1,c:19}},{s:{r:1,c:20},e:{r:1,c:28}},{s:{r:1,c:29},e:{r:1,c:37}}];
+    if(!ws['C2']) ws['C2']={}; ws['C2'].v='第一天上午';
+    if(!ws['L2']) ws['L2']={}; ws['L2'].v='第一天下午';
+    if(!ws['U2']) ws['U2']={}; ws['U2'].v='第二天上午';
+    if(!ws['AD2']) ws['AD2']={}; ws['AD2'].v='第二天下午';
+    XLSX.utils.book_append_sheet(wb,ws,"考场编排表");
+    XLSX.writeFile(wb,`考场编排表_${Date.now()}.xlsx`);
+    showSuccess(`导出成功，共${examRooms.length}个考场`);
+}
+function showError(msg){ $('#import-error').text(msg).show(); $('#import-success').hide(); setTimeout(()=>$('#import-error').hide(),3000); }
+function showSuccess(msg){ $('#import-success').text(msg).show(); $('#import-error').hide(); setTimeout(()=>$('#import-success').hide(),3000); }
+$(document).ready(function(){
+    bindEvents();
+});
+function bindEvents(){
+    $('#import-subjects').on('click',function(){
+        let txt=$('#subject-input').val().trim();
+        if(!txt){ showError('请输入学科数据'); return; }
+        let lines=txt.split('\n');
+        let newSubs=[];
+        for(let line of lines){
+            let l=line.trim();
+            if(!l) continue;
+            let p=l.split(/\s+/);
+            if(p.length<2){ showError(`格式错误: "${line}"`); return; }
+            let name=p[0];
+            let cnt=parseInt(p[1]);
+            if(isNaN(cnt) || cnt<=0){ showError(`人数错误: "${p[1]}"`); return; }
+            let existing=newSubs.find(s=>s.name===name);
+            if(existing) existing.count+=cnt;
+            else newSubs.push({name,count:cnt,arranged:0,category:detectSubjectCategory(name)});
         }
-        headerRow4.push('小计');
-        // 第一天下午
-        for (let i = 0; i < 4; i++) {
-            headerRow4.push('学科', '人数');
-        }
-        headerRow4.push('小计');
-        // 第二天上午
-        for (let i = 0; i < 4; i++) {
-            headerRow4.push('学科', '人数');
-        }
-        headerRow4.push('小计');
-        // 第二天下午
-        for (let i = 0; i < 4; i++) {
-            headerRow4.push('学科', '人数');
-        }
-        headerRow4.push('小计');
-        data.push(headerRow4);
-
-        // 数据行
-        examRooms.forEach((room, i) => {
-            const row = ['', i + 1];
-            const pushPeriod = (p) => {
-                p.forEach(g => {
-                    row.push(g.subject || '');
-                    row.push(g.count || 0);
-                });
-                row.push(calculatePeriodTotal(p));
-            };
-            pushPeriod(room.day1am);
-            pushPeriod(room.day1pm);
-            pushPeriod(room.day2am);
-            pushPeriod(room.day2pm);
-            data.push(row);
-        });
-
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        
-        // ✅ 修复2：列宽设置
-        const colWidths = [];
-        // 拖动列
-        colWidths.push({wch: 5});
-        // 考场号列
-        colWidths.push({wch: 8});
-        // 每个学科/人数列
-        for (let i = 0; i < 36; i++) {
-            if (i % 2 === 0) { // 学科列
-                colWidths.push({wch: 8});
-            } else { // 人数列
-                colWidths.push({wch: 6});
+        subjects=newSubs;
+        examRooms=[];
+        renderExamTable();
+        renderSubjectList();
+        renderSubjectLibrary();
+        updateGlobalStats();
+        clearError();
+        showSuccess(`成功导入 ${subjects.length} 个学科`);
+    });
+    $('#generate-rooms').on('click',function(){ if(!subjects.length){ showError('请先导入学科数据'); return; } generateExamRooms(); });
+    $(document).on('input','.count-input',function(){
+        let val=parseInt($(this).val())||0; if(val<0) val=0; $(this).val(val);
+        if(!isDataLoaded) return;
+        let roomId=$(this).data('room'), period=$(this).data('period'), groupIdx=$(this).data('group');
+        let room=examRooms.find(r=>r.id===roomId);
+        if(room && room[period]){
+            let oldCount=room[period][groupIdx].count;
+            let subj=room[period][groupIdx].subject;
+            if(subj){
+                let sub=subjects.find(s=>s.name===subj);
+                if(sub) sub.arranged += (val-oldCount);
             }
+            room[period][groupIdx].count=val;
+            recalculateAllSubjects();
+            renderSubjectList();
+            renderSubjectLibrary();
+            updateRowTotalByRoomId(roomId);
+            updateGlobalStats();
         }
-        // 4个小计列
-        for (let i = 0; i < 4; i++) {
-            colWidths.push({wch: 6});
-        }
-        ws['!cols'] = colWidths;
-
-        // ✅ 修复3：正确的合并单元格
-        ws['!merges'] = [
-            // 标题行合并
-            {s: {r: 0, c: 0}, e: {r: 0, c: 37}},
-            
-            // 第二天上午时间段合并
-            {s: {r: 1, c: 2}, e: {r: 1, c: 10}},
-            // 第一天下午时间段合并
-            {s: {r: 1, c: 11}, e: {r: 1, c: 19}},
-            // 第二天上午时间段合并
-            {s: {r: 1, c: 20}, e: {r: 1, c: 28}},
-            // 第二天下午时间段合并
-            {s: {r: 1, c: 29}, e: {r: 1, c: 37}}
-        ];
-        
-        // ✅ 修复4：为合并单元格设置文本
-        // 设置时间段标题
-        if (!ws['C2']) ws['C2'] = {};
-        ws['C2'].v = '第一天上午';
-        if (!ws['L2']) ws['L2'] = {};
-        ws['L2'].v = '第一天下午';
-        if (!ws['U2']) ws['U2'] = {};
-        ws['U2'].v = '第二天上午';
-        if (!ws['AD2']) ws['AD2'] = {};
-        ws['AD2'].v = '第二天下午';
-
-        XLSX.utils.book_append_sheet(wb, ws, "考场编排表");
-
-        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-
-        function s2ab(s) {
-            const buf = new ArrayBuffer(s.length);
-            const view = new Uint8Array(buf);
-            for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-            return buf;
-        }
-
-        const blob = new Blob([s2ab(wbout)], { type: "application/octet-stream" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `考场编排表_${Date.now()}.xlsx`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        showSuccess(`Excel文件已导出，共${examRooms.length}个考场`);
-    } catch (e) {
-        showError('导出Excel失败: ' + e.message);
-    }
+    });
+    $(document).on('click','.remove-subject',function(e){
+        e.stopPropagation();
+        let $cell=$(this).closest('.subject-drop');
+        let subjectName=$cell.text().trim();
+        if(subjectName) removeSubjectFromCell($cell,subjectName);
+    });
+    $('#save-data').on('click',saveData);
+    $('#export-data').on('click',exportToExcel);
+    $('#center-quick-fill').on('click',quickFillSubjects);
+    $('#restore-file').on('change',function(e){
+        let file=e.target.files[0];
+        if(!file) return;
+        let reader=new FileReader();
+        reader.onload=function(ev){
+            try{
+                let d=JSON.parse(ev.target.result);
+                if(!d.subjects || !d.examRooms) throw new Error();
+                restoreData(d);
+                showSuccess(`数据已恢复，保存时间：${d.saveTime||'未知'}`);
+            }catch(e){ showError('解析JSON失败'); }
+        };
+        reader.readAsText(file);
+    });
+    $('#left-filter-select').on('change',function(){ activeLeftFilter=$(this).val(); renderSubjectList(); });
+    $('#right-filter-select').on('change',function(){ activeRightFilter=$(this).val(); renderSubjectLibrary(); });
+    $('#right-filter-arranged-done').on('change',function(){ renderSubjectLibrary(); });
+    $('#right-search-input').on('input',function(){ renderSubjectLibrary(); });
+    $('#max-room').on('change',function(){ let v=parseInt($(this).val()); if(v<1) $(this).val(1); if(v>200) $(this).val(200); maxRooms=v; });
 }
-
-/* ================= 提示 ================= */
-function showError(msg) {
-    $('#import-error').text(msg).show();
-    $('#import-success').hide();
-    setTimeout(() => $('#import-error').hide(), 3000);
-}
-
-function showSuccess(msg) {
-    $('#import-success').text(msg).show();
-    $('#import-error').hide();
-    setTimeout(() => $('#import-success').hide(), 3000);
-}
-
-function clearError() {
-    $('#import-error').hide();
-}
+function clearError(){ $('#import-error').hide(); }
 </script>
-
 </body>
 </html>
